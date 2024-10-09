@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 import java.time.LocalDateTime;
 
 /**
- * 公共字段自动填充切面类  用到的知识：自定义枚举、注解  AOP   反射
+ * 5公共字段自动填充切面类  用到的知识：自定义枚举、注解  AOP   反射
  * @author 王天一
  * @version 1.0
  */

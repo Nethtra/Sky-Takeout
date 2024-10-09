@@ -1,6 +1,7 @@
 package com.sky.controller.admin;
 
 import com.aliyuncs.exceptions.ClientException;
+import com.sky.constant.MessageConstant;
 import com.sky.result.Result;
 import com.sky.utils.AliOssUtil;
 import io.swagger.annotations.Api;
@@ -27,24 +28,24 @@ public class CommonController {
     private AliOssUtil aliOssUtil;
 
     /**
-     * 5文件上传
+     * 6文件上传
      *
      * @param file
      * @return
      */
     @ApiOperation("文件上传接口")
     @PostMapping("/upload")
-    public Result<String> upload(MultipartFile file)  {
+    public Result<String> upload(MultipartFile file) {
         log.info("上传文件：{}", file);
-        String url = null;
 
         try {
-            url = aliOssUtil.upload(file);
+            String url = aliOssUtil.upload(file);
+            return Result.success(url);
         } catch (ClientException e) {
-            log.info("文件上传失败：{}",e);
+            log.info("文件上传失败：{}", e);
         } catch (IOException e) {
-            log.info("文件上传失败：{}",e);
+            log.info("文件上传失败：{}", e);
         }
-        return Result.success(url);
+        return Result.error(MessageConstant.UPLOAD_FAILED);
     }
 }
