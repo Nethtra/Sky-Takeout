@@ -41,7 +41,7 @@ public class GlobalExceptionHandler {
         //SQLIntegrityConstraintViolationException: Duplicate entry 'asdg' for key 'employee.idx_username'] with root cause
         //用户名重复的情况
         if (message.contains("Duplicate entry")) {
-            String[] split = message.split(" ");//分片
+            String[] split = message.split(" ");//分片  注意分隔符是一个空格
             String username = split[2];
             String msg = username + MessageConstant.ALREADY_EXISTS;//用户已存在
             return Result.error(msg);
