@@ -6,3 +6,6 @@ sky:
     database: sky_take_out
     username: root
     password: qwer
+  alioss:
+    endpoint: https://oss-cn-guangzhou.aliyuncs.com
+    bucketName: java--web-learning

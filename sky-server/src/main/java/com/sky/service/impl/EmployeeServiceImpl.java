@@ -82,12 +82,12 @@ public class EmployeeServiceImpl implements EmployeeService {
         //能不写死的就不要写死
         employee.setStatus(StatusConstant.ENABLE);
         employee.setPassword(DigestUtils.md5DigestAsHex(PasswordConstant.DEFAULT_PASSWORD.getBytes()));
-        employee.setCreateTime(LocalDateTime.now());
-        employee.setUpdateTime(LocalDateTime.now());
-        //创建人id更新人id 要获取当前登陆用户id
+//        employee.setCreateTime(LocalDateTime.now());
+//        employee.setUpdateTime(LocalDateTime.now());
+//        //创建人id更新人id 要获取当前登陆用户id
         System.out.println("当前线程id:" + Thread.currentThread().getId());
-        employee.setCreateUser(BaseContext.getCurrentId());//取出操作人的id
-        employee.setUpdateUser(BaseContext.getCurrentId());
+//        employee.setCreateUser(BaseContext.getCurrentId());//取出操作人的id
+//        employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.insert(employee);
     }
 
@@ -151,8 +151,8 @@ public class EmployeeServiceImpl implements EmployeeService {
         //但是因为参数类型是Employee  所以要先转换
         Employee employee = new Employee();
         BeanUtils.copyProperties(employeeDTO, employee);
-        employee.setUpdateTime(LocalDateTime.now());//补充修改时间与修改人
-        employee.setUpdateUser(BaseContext.getCurrentId());
+//        employee.setUpdateTime(LocalDateTime.now());//补充修改时间与修改人
+//        employee.setUpdateUser(BaseContext.getCurrentId());
         employeeMapper.update(employee);
     }
 
