@@ -119,6 +119,7 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
+    @Transactional
     public void updateWithFlavor(DishDTO dishDTO) {
         //分别修改dish和flavor表
         //修改dish表
@@ -147,5 +148,15 @@ public class DishServiceImpl implements DishService {
                 .status(status)
                 .build();
         dishMapper.update(dish);
+    }
+
+    @Override
+    public List<Dish> selectByCategoryId(Long categoryId) {
+        Dish dish = Dish.builder()
+                .categoryId(categoryId)
+                .status(StatusConstant.ENABLE)
+                .build();
+        List<Dish> dishes = dishMapper.selectByCategoryId(dish);
+        return dishes;
     }
 }
