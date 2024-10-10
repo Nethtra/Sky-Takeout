@@ -2,12 +2,16 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.constant.MessageConstant;
+import com.sky.constant.StatusConstant;
 import com.sky.dto.DishDTO;
 import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.entity.DishFlavor;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.DishFlavorMapper;
 import com.sky.mapper.DishMapper;
+import com.sky.mapper.SetMealDishMapper;
 import com.sky.result.PageResult;
 import com.sky.service.DishService;
 import com.sky.vo.DishVO;
@@ -28,6 +32,8 @@ public class DishServiceImpl implements DishService {
     private DishMapper dishMapper;
     @Autowired
     private DishFlavorMapper dishFlavorMapper;
+    @Autowired
+    private SetMealDishMapper setMealDishMapper;
 
     @Transactional//因为要同时插两张表  开启事务防止出问题
     @Override
@@ -66,5 +72,36 @@ public class DishServiceImpl implements DishService {
         //mapper中使用外连接查询  也要把categoryName查出来
         Page<DishVO> page = dishMapper.pageQuery(dishPageQueryDTO);
         return new PageResult(page.getTotal(), page.getResult());
+    }
+
+    @Override
+    public void deleteBatch(List<Long> ids) {
+        //注意删除的逻辑
+        //1判断dish是否起售
+        for (Long id : ids) {
+            Dish dish = dishMapper.selectById(id);
+            if (dish.getStatus() == StatusConstant.ENABLE) {
+                //如果起售抛异常不能删除
+                throw new DeletionNotAllowedException(MessageConstant.DISH_ON_SALE);
+            }
+        }
+
+        //2判断是否被套餐关联
+        //思路是根据dishId去查setmealid 如果有的关联的话就不给删
+        //这里和上面不一样直接查ids了 我觉得是因为dish的selectById是能复用的方法 而这个setmeal_dish表一般不会查 所以写个直接一点的方法
+        List<Long> setMealIds = setMealDishMapper.selectSetMealIdsByDishIds(ids);
+        if (setMealIds != null && setMealIds.size() > 0) {
+            throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
+        }
+        //3删除dish
+        //这样会有性能问题 会执行多次sql导致性能下降
+/*        for (Long id :ids) {
+            dishMapper.deleteById(id);
+            //4删除dish关联的flavor
+            //不用管有没有关联 直接删
+            dishFlavorMapper.deleteByDishId(id);
+        }*/
+        dishMapper.deleteByIds(ids);
+        dishFlavorMapper.deleteByDishIds(ids);
     }
 }

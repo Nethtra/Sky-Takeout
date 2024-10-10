@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 /**
  * 菜品管理
  *
@@ -50,5 +52,20 @@ public class DishController {
         log.info("菜品分页查询:{}", dishPageQueryDTO);
         PageResult pageResult = dishService.pageQuery(dishPageQueryDTO);
         return Result.success(pageResult);//统一封装PageResult对象
+    }
+
+    /**
+     * 8批量删除菜品
+     *
+     * @param ids
+     * @return
+     */
+    @ApiOperation("批量删除菜品")
+    @DeleteMapping
+    //注意接口文档 前端传递的参数ids是String类型 使用@RequestParam标识List 可以让spring自动接收为集合
+    public Result delete(@RequestParam List<Long> ids) {
+        log.info("批量删除菜品：{}", ids);
+        dishService.deleteBatch(ids);
+        return Result.success();
     }
 }
