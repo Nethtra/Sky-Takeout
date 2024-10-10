@@ -1,8 +1,11 @@
 package com.sky.mapper;
 
+import com.github.pagehelper.Page;
 import com.sky.annotation.AutoFill;
+import com.sky.dto.DishPageQueryDTO;
 import com.sky.entity.Dish;
 import com.sky.enumeration.OperationType;
+import com.sky.vo.DishVO;
 import io.swagger.models.auth.In;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
@@ -25,6 +28,15 @@ public interface DishMapper {
      *
      * @param dish
      */
-    @AutoFill(OperationType.INSERT)//别忘了可以用自动填充
+    @AutoFill(OperationType.INSERT)
+//别忘了可以用自动填充
     void insert(Dish dish);
+
+    /**
+     * 7菜品分页查询
+     *
+     * @param dishPageQueryDTO
+     * @return
+     */
+    Page<DishVO> pageQuery(DishPageQueryDTO dishPageQueryDTO);
 }
