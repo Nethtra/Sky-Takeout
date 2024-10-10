@@ -132,11 +132,20 @@ public class DishServiceImpl implements DishService {
         dishFlavorMapper.deleteByDishId(dishDTO.getId());//删除
         //因为前端也没有传Flavor的dishid 所以还要自己赋  只不过这次dishDTO已经包含了dishId
         List<DishFlavor> flavors = dishDTO.getFlavors();
-        if (flavors!=null&& flavors.size()>0){
+        if (flavors != null && flavors.size() > 0) {
             flavors.forEach(dishFlavor -> {
                 dishFlavor.setDishId(dishDTO.getId());
             });
         }
         dishFlavorMapper.insertBatch(flavors);//重新添加
+    }
+
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Dish dish = Dish.builder()
+                .id(id)
+                .status(status)
+                .build();
+        dishMapper.update(dish);
     }
 }
