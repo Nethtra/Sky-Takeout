@@ -75,6 +75,7 @@ public class DishServiceImpl implements DishService {
     }
 
     @Override
+    @Transactional//开启事务
     public void deleteBatch(List<Long> ids) {
         //注意删除的逻辑
         //1判断dish是否起售
@@ -103,5 +104,39 @@ public class DishServiceImpl implements DishService {
         }*/
         dishMapper.deleteByIds(ids);
         dishFlavorMapper.deleteByDishIds(ids);
+    }
+
+    @Override
+    public DishVO selectByIdWithFlavor(Long id) {
+        DishVO dishVO = new DishVO();
+        //分开两张表查
+        Dish dish = dishMapper.selectById(id);//查dish
+        List<DishFlavor> dishFlavors = dishFlavorMapper.selectByDishId(id);//查flavor 注意用集合接收
+        //然后封装到VO
+        BeanUtils.copyProperties(dish, dishVO);
+        dishVO.setFlavors(dishFlavors);
+        return dishVO;
+    }
+
+    @Override
+    public void updateWithFlavor(DishDTO dishDTO) {
+        //分别修改dish和flavor表
+        //修改dish表
+        Dish dish = new Dish();
+        BeanUtils.copyProperties(dishDTO, dish);
+        dishMapper.update(dish);
+
+        //修改flavor表
+        //对于flavor表，不好直接修改 因为一个菜品有很多口味
+        //所以可以先删除 再重新添加  达到修改的效果
+        dishFlavorMapper.deleteByDishId(dishDTO.getId());//删除
+        //因为前端也没有传Flavor的dishid 所以还要自己赋  只不过这次dishDTO已经包含了dishId
+        List<DishFlavor> flavors = dishDTO.getFlavors();
+        if (flavors!=null&& flavors.size()>0){
+            flavors.forEach(dishFlavor -> {
+                dishFlavor.setDishId(dishDTO.getId());
+            });
+        }
+        dishFlavorMapper.insertBatch(flavors);//重新添加
     }
 }

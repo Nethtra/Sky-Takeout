@@ -11,6 +11,7 @@
 
     </insert>
 
+
     <!--注意sql的写法 外连接查询  然后因为category表中的种类名也叫name，会和dish中的重复 所以需要起别名与VO中的属性对应  要不会封装失败-->
     <select id="pageQuery" resultType="com.sky.vo.DishVO">
         select dish.*,category.name category_name from dish left join category on dish.category_id=category.id
@@ -36,4 +37,42 @@
             #{id}
         </foreach>
     </delete>
+
+
+    <update id="update">
+        update dish
+        <set>
+            <if test="name!=null">
+                name=#{name},
+            </if>
+            <if test="categoryId!=null">
+                category_id=#{categoryId},
+            </if>
+            <if test="price!=null">
+                price=#{price},
+            </if>
+            <if test="image!=null">
+                image=#{image},
+            </if>
+            <if test="description!=null">
+                description=#{description},
+            </if>
+            <if test="status!=null">
+                status=#{status},
+            </if>
+            <if test="updateTime!=null">
+                update_time=#{updateTime},
+            </if>
+            <if test="updateUser!=null">
+                update_user=#{updateUser},
+            </if>
+            <if test="createTime!=null">
+                create_time=#{createTime},
+            </if>
+            <if test="createUser!=null">
+                create_user=#{createUser}
+            </if>
+        </set>
+        where id=#{id}
+    </update>
 </mapper>
