@@ -10,4 +10,22 @@
                 #{createUser}, #{updateUser})
 
     </insert>
+
+    <!--套餐分页查询   注意用.区分表-->
+    <select id="pageQuery" resultType="com.sky.vo.SetmealVO">
+        select setmeal.*,category.name as category_name
+        from setmeal left join category on setmeal.category_id = category.id
+        <where>
+            <if test="name!=null">
+                setmeal.name like concat('%',#{name},'%')
+            </if>
+            <if test="categoryId!=null">
+                and category_id=#{categoryId}
+            </if>
+            <if test="status!=null">
+                and setmeal.status=#{status}
+            </if>
+        </where>
+        order by setmeal.update_time desc
+    </select>
 </mapper>
