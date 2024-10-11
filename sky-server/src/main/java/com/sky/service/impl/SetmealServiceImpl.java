@@ -99,4 +99,35 @@ public class SetmealServiceImpl implements SetmealService {
                 .build();
         setmealMapper.update(setmeal);//使用公共的update方法
     }
+
+    @Override
+    public SetmealVO select(Long id) {
+        //先查setmeal表
+        Setmeal setmeal = setmealMapper.select(id);
+        //查setmeal_dish表
+        List<SetmealDish> setmealDishes = setMealDishMapper.selectBySetmealId(id);
+        //封装成VO
+        SetmealVO setmealVO = new SetmealVO();
+        BeanUtils.copyProperties(setmeal, setmealVO);
+        setmealVO.setSetmealDishes(setmealDishes);
+        return setmealVO;
+    }
+
+    @Override
+    public void updateWithDishes(SetmealDTO setmealDTO) {
+        //要改两张表
+        //setmeal
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO, setmeal);
+        setmealMapper.update(setmeal);
+        //setmeal_dish
+        //先删除再重新添加
+        setMealDishMapper.deleteBySetmealId(setmealDTO.getId());//删除
+        //重新添加时 private List<SetmealDish> setmealDishes 中的setmealdish少了setmealId 需要手动补
+        List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+        setmealDishes.forEach(setmealDish -> {
+            setmealDish.setSetmealId(setmealDTO.getId());
+        });
+        setMealDishMapper.insertBatch(setmealDishes);//再批量插入
+    }
 }
