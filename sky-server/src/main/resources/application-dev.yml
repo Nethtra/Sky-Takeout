@@ -9,3 +9,9 @@ sky:
   alioss:
     endpoint: https://oss-cn-guangzhou.aliyuncs.com
     bucketName: java--web-learning
+  redis:
+    # 配置Spring Data Redis
+    host: localhost
+    port: 6379
+    password: qwer
+    database: 0
