@@ -25,7 +25,8 @@ public class RedisConfiguration {
         //设置redis key的序列化器   防止在redis查看数据时key乱码 但是不影响  只会影响显示效果  取出来数据还是正常的
         redisTemplate.setKeySerializer(new StringRedisSerializer());
         //序列化value
-        redisTemplate.setValueSerializer(new StringRedisSerializer());
+        //这里设置value的序列化 当存储redis时  会出现类型转换异常  所以还是不要了
+//        redisTemplate.setValueSerializer(new StringRedisSerializer());
         return redisTemplate;
     }
 }
