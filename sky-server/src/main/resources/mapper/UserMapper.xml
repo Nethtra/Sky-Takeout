@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sky.mapper.UserMapper">
+    <!--将插入的数据的主键返回给属性id  是直接返回给了传过来的对象 User user  然后在Service里操作-->
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into user
+            (name, phone, sex, openid, id_number, avatar, create_time)
+        values (#{name}, #{phone}, #{sex}, #{openid}, #{idNumber}, #{avatar}, #{createTime})
+
+    </insert>
+</mapper>

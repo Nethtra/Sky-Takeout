@@ -15,3 +15,6 @@ sky:
     port: 6379
     password: qwer
     database: 0
+  wechat:
+    appid: wxda0c680b0dac7bd1
+    secret: 2c4a7ba212707c1e6a69dac01a714ebc

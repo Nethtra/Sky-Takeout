@@ -1,0 +1,30 @@
+<!--index.wxml-->
+<navigation-bar title="测试" back="{{false}}" color="black" background="#FFF"></navigation-bar>
+<scroll-view class="scrollarea" scroll-y type="list">
+  <!-- view相当于div -->
+  <view class="container">
+    <view>
+      <!-- 使用插值表达式动态展示值 -->
+      {{msg}}
+      {{nickName}}
+      <image style="width: 100px; height: 100px;" src="{{url}}">
+      </image>
+
+    </view>
+    <view>
+      <!-- 为按钮绑定事件 -->
+      <button bind:tap="getUserInfo" type="default">
+        点击获取当前用户信息
+      </button>
+    </view>
+    <!-- 微信登陆需要获取用户的唯一openID来标识用户 而获取openID需要一个授权码 用户授权后才可以获取到授权码 -->
+    <!-- 获取授权码后传给后端  后端请求微信服务器获取openID  一个授权码只能使用一次 -->
+    <view>
+      <button bind:tap="wxLogin" type="primary">微信登陆</button>
+      授权码：{{code}}
+    </view>
+    <view>
+      <button bind:tap="sendRequest" type="warn">发送请求</button>
+    </view>
+  </view>
+</scroll-view>

@@ -48,7 +48,7 @@ public class JwtTokenAdminInterceptor implements HandlerInterceptor {
             Claims claims = JwtUtil.parseJWT(jwtProperties.getAdminSecretKey(), token);
             Long empId = Long.valueOf(claims.get(JwtClaimsConstant.EMP_ID).toString());
             log.info("当前员工id：{}", empId);
-            //在令牌校验的时候解析出了登陆人的id  考虑如何传到service层
+            //拦截时   在令牌校验的时候解析出了登陆人的id  考虑如何传到service层
             System.out.println("当前线程id:"+Thread.currentThread().getId());
             BaseContext.setCurrentId(empId);//将登陆员工id存入LocalThread
             //3、通过，放行

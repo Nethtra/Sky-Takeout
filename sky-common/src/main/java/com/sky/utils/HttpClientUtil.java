@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Http工具类
+ * HttpClient工具类  封装发送http请求的代码
  */
 public class HttpClientUtil {
 
