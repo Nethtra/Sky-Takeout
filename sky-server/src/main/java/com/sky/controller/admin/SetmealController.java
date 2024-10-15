@@ -20,7 +20,7 @@ import java.util.List;
  * @author 王天一
  * @version 1.0
  */
-@RestController
+@RestController("adminSetmealController")
 @Api("套餐管理相关接口")
 @Slf4j
 @RequestMapping("/admin/setmeal")
