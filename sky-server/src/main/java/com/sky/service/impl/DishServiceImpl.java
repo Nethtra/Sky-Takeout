@@ -138,8 +138,8 @@ public class DishServiceImpl implements DishService {
             flavors.forEach(dishFlavor -> {
                 dishFlavor.setDishId(dishDTO.getId());
             });
+            dishFlavorMapper.insertBatch(flavors);//重新添加 注意这句要放到if里，要不没有口味的话再添加会报错
         }
-        dishFlavorMapper.insertBatch(flavors);//重新添加
     }
 
     @Override

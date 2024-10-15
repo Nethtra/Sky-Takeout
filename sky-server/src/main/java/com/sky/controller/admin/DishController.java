@@ -11,9 +11,11 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * 菜品管理
@@ -28,6 +30,8 @@ import java.util.List;
 public class DishController {
     @Autowired
     private DishService dishService;
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 6新增菜品   包含查询分类 文件上传 新增菜品三个子接口
@@ -39,6 +43,8 @@ public class DishController {
     public Result createDishWithFlavor(@RequestBody DishDTO dishDTO) {//注意用DishDTO 因为多出flavor字段 而dish表里没有口味字段
         log.info("添加菜品:{}", dishDTO);
         dishService.createDishWithFlavor(dishDTO);
+        redisTemplate.delete("dish_" + dishDTO.getCategoryId());//精准清除缓存
+        //其实新增不用清  因为新增默认停售 不会被展示
         return Result.success();
     }
 
@@ -68,6 +74,10 @@ public class DishController {
     public Result delete(@RequestParam List<Long> ids) {
         log.info("批量删除菜品：{}", ids);
         dishService.deleteBatch(ids);
+        //批量删除涉及多个类 因为缓存是按菜品分类分的  所以不好精准清  直接删除所有
+        /*Set keys = redisTemplate.keys("dish_*");//匹配所有key
+        redisTemplate.delete(keys);//删除所有*/
+        cleanCache("dish_*");
         return Result.success();
     }
 
@@ -101,6 +111,7 @@ public class DishController {
     public Result updateWithFlavor(@RequestBody DishDTO dishDTO) {
         log.info("修改菜品数据：{}", dishDTO);
         dishService.updateWithFlavor(dishDTO);
+        cleanCache("dish_*");//修改因为可能修改分类  一修改分类就会涉及到多个缓存  所以也直接清
         return Result.success();
     }
 
@@ -116,6 +127,7 @@ public class DishController {
     public Result startOrStop(@PathVariable Integer status, Long id) {
         log.info("更改{}菜品状态:{}", id, status);
         dishService.startOrStop(status, id);
+        cleanCache("dish_*");//启售停售如果要精准清的话 需要再查一遍数据库category_id 得不偿失
         return Result.success();
     }
 
@@ -128,9 +140,19 @@ public class DishController {
     @ApiOperation("根据分类id查询菜品")
     @GetMapping("/list")
     public Result<List<Dish>> selectByCategoryId(Long categoryId) {
-        log.info("根据分类id查询菜品  categoryId:{}",categoryId);
+        log.info("根据分类id查询菜品  categoryId:{}", categoryId);
         //这里看答案最好是只显示出起售的
         List<Dish> dishes = dishService.selectByCategoryId(categoryId);
         return Result.success(dishes);
+    }
+
+    /**
+     * 清理redis的所有缓存 抽取的公共方法 传入的是pattern 匹配模式
+     *
+     * @param pattern
+     */
+    private void cleanCache(String pattern) {
+        Set keys = redisTemplate.keys(pattern);//匹配所有key
+        redisTemplate.delete(keys);//删除所有
     }
 }
