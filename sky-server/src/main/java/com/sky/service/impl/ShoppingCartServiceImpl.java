@@ -1,5 +1,6 @@
 package com.sky.service.impl;
 
+import com.fasterxml.jackson.databind.ser.Serializers;
 import com.sky.context.BaseContext;
 import com.sky.dto.ShoppingCartDTO;
 import com.sky.entity.Dish;
@@ -84,5 +85,35 @@ public class ShoppingCartServiceImpl implements ShoppingCartService {
                 .build();
         List<ShoppingCart> shoppingCartList = shoppingCartMapper.select(shoppingCart);
         return shoppingCartList;//直接返回
+    }
+
+    @Override
+    public void cleanShoppingCart() {
+        ShoppingCart shoppingCart = ShoppingCart.builder()
+                .userId(BaseContext.getCurrentId())
+                .build();
+        //写动态sql  之后删除一个的时候还能用
+        shoppingCartMapper.delete(shoppingCart);
+    }
+
+    @Override
+    public void subAnItem(ShoppingCartDTO shoppingCartDTO) {
+        //1查询number的数量是不是1
+        ShoppingCart shoppingCart = new ShoppingCart();
+        BeanUtils.copyProperties(shoppingCartDTO, shoppingCart);
+        shoppingCart.setUserId(BaseContext.getCurrentId());
+        List<ShoppingCart> shoppingCartList = shoppingCartMapper.select(shoppingCart);
+        if (shoppingCartList != null && shoppingCartList.size() > 0) {
+            ShoppingCart shoppingCart1 = shoppingCartList.get(0);
+            Integer number = shoppingCart1.getNumber();
+            //2如果是1就直接删除
+            if (number == 1)
+                shoppingCartMapper.delete(shoppingCart);
+                //3不是1就update把number-1
+            else {
+                shoppingCart1.setNumber(number - 1);
+                shoppingCartMapper.updateNumberById(shoppingCart1);
+            }
+        }
     }
 }
