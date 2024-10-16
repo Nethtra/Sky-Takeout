@@ -69,7 +69,7 @@ public class SetmealServiceImpl implements SetmealService {
     public void deleteBatch(List<Long> ids) {
         //判断套餐是否起售
         ids.forEach(id -> {
-            Setmeal setmeal = setmealMapper.select(id);
+            Setmeal setmeal = setmealMapper.selectById(id);
             if (setmeal.getStatus() == StatusConstant.ENABLE)
                 throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
         });
@@ -104,7 +104,7 @@ public class SetmealServiceImpl implements SetmealService {
     @Override
     public SetmealVO select(Long id) {
         //先查setmeal表
-        Setmeal setmeal = setmealMapper.select(id);
+        Setmeal setmeal = setmealMapper.selectById(id);
         //查setmeal_dish表
         List<SetmealDish> setmealDishes = setMealDishMapper.selectBySetmealId(id);
         //封装成VO

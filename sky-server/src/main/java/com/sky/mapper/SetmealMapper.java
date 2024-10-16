@@ -47,7 +47,7 @@ public interface SetmealMapper {
      * @return
      */
     @Select("select * from setmeal where id=#{id}")
-    Setmeal select(Long id);
+    Setmeal selectById(Long id);
 
     /**
      * 批量删除套餐
