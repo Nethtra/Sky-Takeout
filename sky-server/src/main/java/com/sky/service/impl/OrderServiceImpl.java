@@ -1,8 +1,11 @@
 package com.sky.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
 import com.sky.entity.*;
@@ -10,10 +13,12 @@ import com.sky.exception.AddressBookBusinessException;
 import com.sky.exception.OrderBusinessException;
 import com.sky.exception.ShoppingCartBusinessException;
 import com.sky.mapper.*;
+import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
+import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -149,5 +154,30 @@ public class OrderServiceImpl implements OrderService {
                 .build();
 
         ordersMapper.update(orders);
+    }
+
+    @Override
+    public PageResult pageQuery(OrdersPageQueryDTO ordersPageQueryDTO) {
+        //看返回数据还需要有订单明细   所以分开两张表查  涉及到orders和order_detail两张表
+        //先查orders封装成Page
+        //然后查order_detail  set到Page中的OrderVO的orderDetailList字段
+        //不要搞连接查询  封装不上的
+        //OrderVO extends Orders
+        ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());//设置用户id
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+        Page<Orders> page = ordersMapper.pageQuery(ordersPageQueryDTO);
+        List<OrderVO> orderVOList = new ArrayList<>();
+        if (page != null && page.getTotal() > 0) {
+            for (Orders order : page) {
+                //查询order_detail
+                List<OrderDetail> orderDetailList = orderDetailMapper.selectByOrderId(order.getId());
+                //构造VO
+                OrderVO orderVO = new OrderVO();
+                BeanUtils.copyProperties(order, orderVO);
+                orderVO.setOrderDetailList(orderDetailList);
+                orderVOList.add(orderVO);
+            }
+        }
+        return new PageResult(page.getTotal(), orderVOList);
     }
 }
