@@ -241,4 +241,39 @@ public class OrderServiceImpl implements OrderService {
         }).collect(Collectors.toList());
         shoppingCartMapper.insertBatch(shoppingCartList);//批量插入购物车
     }
+
+    @Override
+    public PageResult conditionSearch(OrdersPageQueryDTO ordersPageQueryDTO) {
+        //返回数据中要求orderDishes   所以要使用OrderVO
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+        Page<Orders> page = ordersMapper.pageQuery(ordersPageQueryDTO);
+        List<Orders> ordersList = page.getResult();
+        List<OrderVO> orderVOList = new ArrayList<>();
+        for (Orders order : ordersList) {
+            OrderVO orderVO = new OrderVO();
+            BeanUtils.copyProperties(order, orderVO);
+            orderVO.setOrderDishes(getOrderDishes(order));//考虑如何拼出菜品的字符串
+            orderVOList.add(orderVO);
+        }
+        return new PageResult(page.getTotal(), orderVOList);
+    }
+
+    /**
+     * 根据订单id获取该订单用字符串形式拼接的菜品
+     *
+     * @param orders
+     * @return
+     */
+    private String getOrderDishes(Orders orders) {
+        //查出订单明细
+        List<OrderDetail> orderDetailList = orderDetailMapper.selectByOrderId(orders.getId());
+        //然后转成字符串集合
+        List<String> orderDishes = orderDetailList.stream().map(orderDetail -> {
+            String DishStr = orderDetail.getName() + "*" + orderDetail.getNumber() + ";";
+            return DishStr;
+        }).collect(Collectors.toList());
+        //String.join字符串拼接 前面是分隔符 后面是要拼接的字符串
+        //表示将字符串集合里的所有字符串拼接成一个然后再返回
+        return String.join("", orderDishes);
+    }
 }
