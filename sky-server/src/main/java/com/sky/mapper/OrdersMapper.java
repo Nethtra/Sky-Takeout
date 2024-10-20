@@ -7,6 +7,8 @@ import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+
 /**
  * @author 王天一
  * @version 1.0
@@ -42,4 +44,12 @@ public interface OrdersMapper {
      * @return
      */
     Page<Orders> pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    /**
+     * 动态条件查询订单
+     *
+     * @param orders
+     * @return
+     */
+    List<Orders> select(Orders orders);
 }

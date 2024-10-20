@@ -58,4 +58,24 @@
         </where>
         order by order_time desc
     </select>
+    <select id="select" resultType="com.sky.entity.Orders">
+        select * from orders
+        <where>
+            <if test="id!=null">
+                id=#{id}
+            </if>
+            <if test="number != null and number!=''">
+                and number like concat('%',#{number},'%')
+            </if>
+            <if test="phone != null and phone!=''">
+                and phone like concat('%',#{phone},'%')
+            </if>
+            <if test="userId != null">
+                and user_id = #{userId}
+            </if>
+            <if test="status != null">
+                and status = #{status}
+            </if>
+        </where>
+    </select>
 </mapper>
