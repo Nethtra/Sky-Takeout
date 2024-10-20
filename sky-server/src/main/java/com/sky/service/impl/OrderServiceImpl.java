@@ -29,6 +29,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * @author 王天一
@@ -223,5 +224,21 @@ public class OrderServiceImpl implements OrderService {
         }
         order.setStatus(6);//最后设置状态为已取消
         ordersMapper.update(order);
+    }
+
+    @Override
+    public void repetition(Long id) {
+        //逻辑：将这次订单的所有商品重新加入购物车
+        //只有order_detail中还有信息
+        //将List中的 OrderDetail对象转换为ShoppingCart对象  然后插入shopping_cart表
+        List<OrderDetail> orderDetailList = orderDetailMapper.selectByOrderId(id);
+        List<ShoppingCart> shoppingCartList = orderDetailList.stream().map(orderDetail -> {
+            ShoppingCart shoppingCart = new ShoppingCart();
+            BeanUtils.copyProperties(orderDetail, shoppingCart, "id");//排除属性id
+            shoppingCart.setUserId(BaseContext.getCurrentId());//补充一些属性
+            shoppingCart.setCreateTime(LocalDateTime.now());
+            return shoppingCart;
+        }).collect(Collectors.toList());
+        shoppingCartMapper.insertBatch(shoppingCartList);//批量插入购物车
     }
 }
