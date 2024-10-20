@@ -137,7 +137,7 @@ public class WeChatPayUtil {
         jsonObject.put("mchid", weChatProperties.getMchid());
         jsonObject.put("description", description);
         jsonObject.put("out_trade_no", orderNum);
-        jsonObject.put("notify_url", weChatProperties.getNotifyUrl());
+        jsonObject.put("notify_url", weChatProperties.getNotifyUrl());//回调地址
 
         JSONObject amount = new JSONObject();
         amount.put("total", total.multiply(new BigDecimal(100)).setScale(2, BigDecimal.ROUND_HALF_UP).intValue());
@@ -169,7 +169,7 @@ public class WeChatPayUtil {
         //解析返回结果
         JSONObject jsonObject = JSON.parseObject(bodyAsString);
         System.out.println(jsonObject);
-
+        //签名加密
         String prepayId = jsonObject.getString("prepay_id");
         if (prepayId != null) {
             String timeStamp = String.valueOf(System.currentTimeMillis() / 1000);
