@@ -17,6 +17,7 @@ import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
@@ -258,6 +259,7 @@ public class OrderServiceImpl implements OrderService {
         return new PageResult(page.getTotal(), orderVOList);
     }
 
+
     /**
      * 根据订单id获取该订单用字符串形式拼接的菜品
      *
@@ -275,5 +277,17 @@ public class OrderServiceImpl implements OrderService {
         //String.join字符串拼接 前面是分隔符 后面是要拼接的字符串
         //表示将字符串集合里的所有字符串拼接成一个然后再返回
         return String.join("", orderDishes);
+    }
+
+    @Override
+    public OrderStatisticsVO countStatistics() {
+        Integer toBeConfirmed = ordersMapper.selectStatisticCounts(Orders.TO_BE_CONFIRMED);
+        Integer confirmed = ordersMapper.selectStatisticCounts(Orders.CONFIRMED);
+        Integer deliveryInProgress = ordersMapper.selectStatisticCounts(Orders.DELIVERY_IN_PROGRESS);
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        orderStatisticsVO.setToBeConfirmed(toBeConfirmed);
+        orderStatisticsVO.setConfirmed(confirmed);
+        orderStatisticsVO.setDeliveryInProgress(deliveryInProgress);
+        return orderStatisticsVO;
     }
 }
