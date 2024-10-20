@@ -196,4 +196,32 @@ public class OrderServiceImpl implements OrderService {
         orderVO.setOrderDetailList(orderDetailList);
         return orderVO;
     }
+
+    @Override
+    public void cancelOrder(Long id) throws Exception {
+        //分析业务规则
+        //取消时先检查当前的订单状态
+        //1待付款 2待接单 3已接单 4派送中 5已完成 6已取消 7退款
+//        待支付和待接单状态下，用户可直接取消订单
+//        如果在待接单状态下取消订单，需要给用户退款
+//        商家已接单和配送中状态下，用户取消订单需电话沟通商家
+//        取消订单后需要将订单状态修改为“已取消”
+        Orders order = ordersMapper.selectById(id);
+        if (order == null)//检查订单是否存在
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        else if (order.getStatus() > 2)//>2不给取消
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR + "请联系骑手或商家");
+        else if (order.getStatus().equals(Orders.TO_BE_CONFIRMED)) {//状态为2退款
+            //调用微信支付退款接口
+            weChatPayUtil.refund(
+                    order.getNumber(), //商户订单号
+                    order.getNumber(), //商户退款单号
+                    new BigDecimal(0.01),//退款金额，单位 元
+                    new BigDecimal(0.01));//原订单金额
+            //支付状态修改为 退款
+            order.setPayStatus(Orders.REFUND);
+        }
+        order.setStatus(6);//最后设置状态为已取消
+        ordersMapper.update(order);
+    }
 }

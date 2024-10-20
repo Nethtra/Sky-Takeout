@@ -52,4 +52,12 @@ public interface OrdersMapper {
      * @return
      */
     List<Orders> select(Orders orders);
+
+    /**
+     * 根据id查询订单
+     *
+     * @param id
+     */
+    @Select("select * from orders where id=#{id}")
+    Orders selectById(Long id);
 }

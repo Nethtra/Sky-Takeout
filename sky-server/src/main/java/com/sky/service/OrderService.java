@@ -45,10 +45,17 @@ public interface OrderService {
     PageResult pageQuery(OrdersPageQueryDTO ordersPageQueryDTO);
 
     /**
-     * 24查询订单详情
+     * 24根据id查询订单详情
      *
      * @param id
      * @return
      */
     OrderVO orderDetail(Long id);
+
+    /**
+     * 25取消订单
+     *
+     * @param id
+     */
+    void cancelOrder (Long id) throws Exception;
 }
