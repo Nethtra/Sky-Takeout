@@ -2,6 +2,7 @@ package com.sky.controller.admin;
 
 import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersPageQueryDTO;
+import com.sky.dto.OrdersRejectionDTO;
 import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
@@ -88,14 +89,28 @@ public class OrderController {
     /**
      * 31商家拒单
      *
-     * @param ordersCancelDTO
+     * @param ordersRejectionDTO
      * @return
      */
     @ApiOperation("商家拒单")
     @PutMapping("/rejection")
-    public Result reject(@RequestBody OrdersCancelDTO ordersCancelDTO) throws Exception {
-        log.info("商家拒单{}", ordersCancelDTO);
-        orderService.rejection(ordersCancelDTO);
+    public Result reject(@RequestBody OrdersRejectionDTO ordersRejectionDTO) throws Exception {
+        log.info("商家拒单{}", ordersRejectionDTO);
+        orderService.rejection(ordersRejectionDTO);
+        return Result.success();
+    }
+
+    /**
+     * 32商家取消订单
+     *
+     * @param ordersCancelDTO
+     * @return
+     */
+    @ApiOperation("商家取消订单")
+    @PutMapping("/cancel")
+    public Result cancel(@RequestBody OrdersCancelDTO ordersCancelDTO) {
+        log.info("商家取消了订单{}", ordersCancelDTO);
+        orderService.merchantCancelOrder(ordersCancelDTO);
         return Result.success();
     }
 }
