@@ -21,6 +21,7 @@ import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.annotation.Order;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
  * @version 1.0
  */
 @Service
+@Slf4j
 public class OrderServiceImpl implements OrderService {
     @Autowired
     private OrdersMapper ordersMapper;
@@ -120,7 +122,7 @@ public class OrderServiceImpl implements OrderService {
     //先梳理一遍流程，第一次点支付按钮  小程序请求/payment  然后在这里请求微信的接口  返回预支付标识
     //输入密码后 小程序直接拿着预支付标识请求微信后端  微信后端返回sucess   并调起外卖后端/paySuccess  然后在下面的paySuccess更新订单信息
     //现在直接修改微信前端的代码  输入密码后直接重定向到支付成功页面
-    //后端这里注释掉调用微信支付的接口  直接返回空的JSONobject  错了 不能是空的 要随便加一个prepay_id骗前端
+    //后端这里注释掉调用微信支付的接口 用到退款的地方也别用了  直接返回空的JSONobject  错了 不能是空的 要随便加一个prepay_id骗前端
     //然后因为还没调/paySuccess  就直接在payment里调一下
     public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
         // 当前登录用户id
@@ -135,7 +137,7 @@ public class OrderServiceImpl implements OrderService {
                 user.getOpenid() //微信用户的openid
         );*/
         JSONObject jsonObject = new JSONObject();//1
-        jsonObject.put("prepay_id","111");//1
+        jsonObject.put("prepay_id", "111");//1
         if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
             throw new OrderBusinessException("该订单已支付");
         }
@@ -223,12 +225,13 @@ public class OrderServiceImpl implements OrderService {
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR + "请联系骑手或商家");
         else if (order.getStatus().equals(Orders.TO_BE_CONFIRMED)) {//状态为2退款
             //调用微信支付退款接口
-            weChatPayUtil.refund(
-                    order.getNumber(), //商户订单号
-                    order.getNumber(), //商户退款单号
-                    new BigDecimal(0.01),//退款金额，单位 元
-                    new BigDecimal(0.01));//原订单金额
+//            weChatPayUtil.refund(
+//                    order.getNumber(), //商户订单号
+//                    order.getNumber(), //商户退款单号
+//                    new BigDecimal(0.01),//退款金额，单位 元
+//                    new BigDecimal(0.01));//原订单金额
             //支付状态修改为 退款
+            log.info("退款");
             order.setPayStatus(Orders.REFUND);
         }
         order.setStatus(6);//最后设置状态为已取消
@@ -321,7 +324,8 @@ public class OrderServiceImpl implements OrderService {
         ordersMapper.update(orders);
         //然后退款
         orders = ordersMapper.selectById(ordersCancelDTO.getId());
-        weChatPayUtil.refund(orders.getNumber(), orders.getNumber(), new BigDecimal(0.01), new BigDecimal(0.01));
+//        weChatPayUtil.refund(orders.getNumber(), orders.getNumber(), new BigDecimal(0.01), new BigDecimal(0.01));
+        log.info("退款");
         orders.setPayStatus(Orders.REFUND);//更新支付状态
         ordersMapper.update(orders);
     }
