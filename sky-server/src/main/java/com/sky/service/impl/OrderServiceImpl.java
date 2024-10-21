@@ -5,6 +5,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import com.sky.constant.MessageConstant;
 import com.sky.context.BaseContext;
+import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
@@ -298,6 +299,23 @@ public class OrderServiceImpl implements OrderService {
                 .id(id)
                 .status(Orders.CONFIRMED)
                 .build();
+        ordersMapper.update(orders);
+    }
+
+    @Override
+    public void rejection(OrdersCancelDTO ordersCancelDTO) throws Exception {
+        //修改订单状态为已取消，然后填写拒单原因
+        Orders orders = Orders.builder()
+                .id(ordersCancelDTO.getId())
+                .rejectionReason(ordersCancelDTO.getRejectionReason())
+                .status(Orders.CANCELLED)
+                .cancelTime(LocalDateTime.now())//时间别忘写
+                .build();
+        ordersMapper.update(orders);
+        //然后退款
+        orders = ordersMapper.selectById(ordersCancelDTO.getId());
+        weChatPayUtil.refund(orders.getNumber(), orders.getNumber(), new BigDecimal(0.01), new BigDecimal(0.01));
+        orders.setPayStatus(Orders.REFUND);//更新支付状态
         ordersMapper.update(orders);
     }
 

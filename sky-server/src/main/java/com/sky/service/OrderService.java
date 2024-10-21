@@ -1,5 +1,6 @@
 package com.sky.service;
 
+import com.sky.dto.OrdersCancelDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.dto.OrdersPaymentDTO;
 import com.sky.dto.OrdersSubmitDTO;
@@ -87,4 +88,10 @@ public interface OrderService {
      * @param id
      */
     void confirm(Long id);
+
+    /**
+     * 31商家拒单
+     * @param ordersCancelDTO
+     */
+    void rejection(OrdersCancelDTO ordersCancelDTO) throws Exception;
 }
