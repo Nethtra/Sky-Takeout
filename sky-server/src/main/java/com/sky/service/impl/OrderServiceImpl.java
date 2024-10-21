@@ -329,7 +329,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public void merchantCancelOrder(OrdersCancelDTO ordersCancelDTO) {
         //感觉和拒单基本一样
-        //但是看前端发现是 拒单只能在待接单状态拒 取消在待付款状态也能取消
+        //但是看前端发现是 拒单只能在待接单状态拒 取消在各种状态都可以
         //所以要加个判断 如果已付款就要退钱
         Orders order = ordersMapper.selectById(ordersCancelDTO.getId());
 
@@ -352,6 +352,16 @@ public class OrderServiceImpl implements OrderService {
         if (!(order.getStatus().equals(Orders.CONFIRMED)))
             throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         order.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        ordersMapper.update(order);
+    }
+
+    @Override
+    public void completeOrder(Long id) {
+        //只能将配送中的订单改为已完成状态
+        Orders order = ordersMapper.selectById(id);
+        if (!(order.getStatus().equals(Orders.DELIVERY_IN_PROGRESS)))
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        order.setStatus(Orders.COMPLETED);
         ordersMapper.update(order);
     }
 }
