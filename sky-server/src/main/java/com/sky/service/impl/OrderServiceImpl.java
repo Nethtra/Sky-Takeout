@@ -116,26 +116,33 @@ public class OrderServiceImpl implements OrderService {
      * @param ordersPaymentDTO
      * @return
      */
+    //绕过微信支付
+    //先梳理一遍流程，第一次点支付按钮  小程序请求/payment  然后在这里请求微信的接口  返回预支付标识
+    //输入密码后 小程序直接拿着预支付标识请求微信后端  微信后端返回sucess   并调起外卖后端/paySuccess  然后在下面的paySuccess更新订单信息
+    //现在直接修改微信前端的代码  输入密码后直接重定向到支付成功页面
+    //后端这里注释掉调用微信支付的接口  直接返回空的JSONobject  错了 不能是空的 要随便加一个prepay_id骗前端
+    //然后因为还没调/paySuccess  就直接在payment里调一下
     public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
         // 当前登录用户id
         Long userId = BaseContext.getCurrentId();
         User user = userMapper.getById(userId);
 
         //调用微信支付接口，生成预支付交易单   使用工具类
-        JSONObject jsonObject = weChatPayUtil.pay(
+        /*JSONObject jsonObject = weChatPayUtil.pay(
                 ordersPaymentDTO.getOrderNumber(), //商户订单号
                 new BigDecimal(0.01), //支付金额，单位 元
                 "苍穹外卖订单", //商品描述
                 user.getOpenid() //微信用户的openid
-        );
-
+        );*/
+        JSONObject jsonObject = new JSONObject();//1
+        jsonObject.put("prepay_id","111");//1
         if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
             throw new OrderBusinessException("该订单已支付");
         }
 
         OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
         vo.setPackageStr(jsonObject.getString("package"));
-
+        paySuccess(ordersPaymentDTO.getOrderNumber());//1
         return vo;
     }
 
