@@ -189,7 +189,7 @@ public class OrderServiceImpl implements OrderService {
         //先查寻orders表  然后查order_detail表  封装成VO
         Orders orders = new Orders();
         orders.setId(id);
-        orders.setUserId(BaseContext.getCurrentId());
+//        orders.setUserId(BaseContext.getCurrentId());
         List<Orders> ordersList = ordersMapper.select(orders);
         Orders orders1 = ordersList.get(0);
         List<OrderDetail> orderDetailList = orderDetailMapper.selectByOrderId(id);
@@ -290,4 +290,5 @@ public class OrderServiceImpl implements OrderService {
         orderStatisticsVO.setDeliveryInProgress(deliveryInProgress);
         return orderStatisticsVO;
     }
+
 }
