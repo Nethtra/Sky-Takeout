@@ -291,4 +291,14 @@ public class OrderServiceImpl implements OrderService {
         return orderStatisticsVO;
     }
 
+    @Override
+    public void confirm(Long id) {
+        //更改订单状态为已接单
+        Orders orders = Orders.builder()
+                .id(id)
+                .status(Orders.CONFIRMED)
+                .build();
+        ordersMapper.update(orders);
+    }
+
 }

@@ -82,4 +82,9 @@ public interface OrderService {
      */
     OrderStatisticsVO countStatistics();
 
+    /**
+     * 30商家接单
+     * @param id
+     */
+    void confirm(Long id);
 }
