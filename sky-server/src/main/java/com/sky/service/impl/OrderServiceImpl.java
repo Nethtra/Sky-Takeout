@@ -25,7 +25,6 @@ import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -300,10 +299,10 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public void confirm(Long id) {
+    public void confirm(OrdersConfirmDTO ordersConfirmDTO) {
         //更改订单状态为已接单
         Orders orders = Orders.builder()
-                .id(id)
+                .id(ordersConfirmDTO.getId())
                 .status(Orders.CONFIRMED)
                 .build();
         ordersMapper.update(orders);
@@ -344,5 +343,15 @@ public class OrderServiceImpl implements OrderService {
             order.setPayStatus(Orders.REFUND);
             ordersMapper.update(order);
         }
+    }
+
+    @Override
+    public void deliveryOrder(Long id) {
+        //将订单状态改为派送中  且只能由已接单状态转变
+        Orders order = ordersMapper.selectById(id);
+        if (!(order.getStatus().equals(Orders.CONFIRMED)))
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        order.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        ordersMapper.update(order);
     }
 }

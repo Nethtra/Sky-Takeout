@@ -83,9 +83,9 @@ public interface OrderService {
     /**
      * 30商家接单
      *
-     * @param id
+     * @param ordersConfirmDTO
      */
-    void confirm(Long id);
+    void confirm(OrdersConfirmDTO ordersConfirmDTO);
 
     /**
      * 31商家拒单
@@ -100,4 +100,11 @@ public interface OrderService {
      * @param ordersCancelDTO
      */
     void merchantCancelOrder(OrdersCancelDTO ordersCancelDTO);
+
+    /**
+     * 派送订单
+     *
+     * @param id
+     */
+    void deliveryOrder(Long id);
 }
