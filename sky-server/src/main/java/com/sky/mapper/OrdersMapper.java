@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Select;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author 王天一
@@ -80,4 +81,11 @@ public interface OrdersMapper {
      */
     @Select("select * from orders where status=#{status} and order_time<#{time} ")
     List<Orders> selectByStatusAndOrderTime(Integer status, LocalDateTime time);
+
+    /**
+     * 查询一天的营业额
+     * @param map
+     * @return
+     */
+    Double selectDayTurnover(Map map);
 }

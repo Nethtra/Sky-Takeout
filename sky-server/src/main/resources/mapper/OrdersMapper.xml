@@ -90,4 +90,19 @@
             </if>
         </where>
     </select>
+    <!--if标签里的属性名要与map中的key对应上 就可以自动拿出来-->
+    <select id="selectDayTurnover" resultType="java.lang.Double">
+        select sum(amount) from orders
+        <where>
+            <if test="dayBeginTime!=null">
+                order_time &gt; #{dayBeginTime}
+            </if>
+            <if test="dayEndTime!=null">
+                and order_time &lt; #{dayEndTime}
+            </if>
+            <if test="status!=null">
+                and status=#{status}
+            </if>
+        </where>
+    </select>
 </mapper>
