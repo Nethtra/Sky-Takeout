@@ -9,4 +9,15 @@
         values (#{name}, #{phone}, #{sex}, #{openid}, #{idNumber}, #{avatar}, #{createTime})
 
     </insert>
+    <select id="countUser" resultType="java.lang.Long">
+        select count(*) from user
+        <where>
+            <if test="dayBeginTime!=null">
+                create_time &gt; #{dayBeginTime}
+            </if>
+            <if test="dayEndTime!=null">
+                and create_time &lt; #{dayEndTime}
+            </if>
+        </where>
+    </select>
 </mapper>

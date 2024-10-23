@@ -2,8 +2,10 @@ package com.sky.service.impl;
 
 import com.sky.entity.Orders;
 import com.sky.mapper.OrdersMapper;
+import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.TurnoverReportVO;
+import com.sky.vo.UserReportVO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -24,6 +26,8 @@ import java.util.Map;
 public class ReportServiceImpl implements ReportService {
     @Autowired
     private OrdersMapper ordersMapper;
+    @Autowired
+    private UserMapper userMapper;
 
     @Override
     public TurnoverReportVO turnoverStatistics(LocalDate begin, LocalDate end) {
@@ -65,6 +69,48 @@ public class ReportServiceImpl implements ReportService {
         return TurnoverReportVO.builder()
                 .dateList(join)
                 .turnoverList(join1)
+                .build();
+    }
+
+    @Override
+    public UserReportVO userStatistics(LocalDate begin, LocalDate end) {
+        //dateList
+        List<LocalDate> dateList = new ArrayList<>();
+        dateList.add(begin);
+        while (!begin.equals(end)) {
+            begin = begin.plusDays(1);
+            dateList.add(begin);
+        }
+        //查用户数量实际就是 根据user 表里的create_time来区分
+        //select count(*) from user where create_time<
+        List<Long> totalUserList = new ArrayList<>();
+        List<Long> newUserList = new ArrayList<>();
+        int i = 0;
+        for (LocalDate localDate : dateList) {
+            LocalDateTime dayEndTime = LocalDateTime.of(localDate, LocalTime.MAX);
+            LocalDateTime dayBeginTime = LocalDateTime.of(localDate, LocalTime.MIN);
+            Map map = new HashMap();
+            map.put("dayEndTime", dayEndTime);
+            //先查总用户数 因为只有一个参数  这样可以复用map
+            Long totalUser = userMapper.countUser(map);
+            //查新增用户数
+            Long newUser;
+            if (i == 0) {
+                map.put("dayBeginTime", dayBeginTime);
+                newUser = userMapper.countUser(map);
+            } else {
+                //优化了一下逻辑
+                //后面天数的新增用户  可以用当天的总用户减去前一天的总用户 来减少查询次数
+                newUser = totalUser - totalUserList.get(i - 1);
+            }
+            totalUserList.add(totalUser);
+            newUserList.add(newUser);
+            i++;
+        }
+        return UserReportVO.builder()
+                .dateList(StringUtils.join(dateList))
+                .totalUserList(StringUtils.join(totalUserList))
+                .newUserList(StringUtils.join(newUserList))
                 .build();
     }
 }
