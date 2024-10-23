@@ -83,9 +83,16 @@ public interface OrdersMapper {
     List<Orders> selectByStatusAndOrderTime(Integer status, LocalDateTime time);
 
     /**
-     * 查询一天的营业额
+     * 统计的营业额
      * @param map
      * @return
      */
     Double selectDayTurnover(Map map);
+
+    /**
+     * 统计订单数
+     * @param map
+     * @return
+     */
+    Integer countOrders(Map map);
 }

@@ -2,11 +2,13 @@ package com.sky.controller.admin;
 
 import com.sky.result.Result;
 import com.sky.service.ReportService;
+import com.sky.vo.OrderReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.weaver.ast.Or;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -60,5 +62,21 @@ public class ReportController {
         log.info("统计{}至{}的用户", begin, end);
         UserReportVO userReportVO = reportService.userStatistics(begin, end);
         return Result.success(userReportVO);
+    }
+
+    /**
+     * 40指定时间段内的订单统计
+     *
+     * @param begin
+     * @param end
+     * @return
+     */
+    @ApiOperation("订单统计")
+    @GetMapping("/ordersStatistics")
+    public Result<OrderReportVO> ordersStatistics(@DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate begin,
+                                                  @DateTimeFormat(pattern = "yyyy-MM-dd") LocalDate end) {
+        log.info("统计{}至{}的订单", begin, end);
+        OrderReportVO orderReportVO = reportService.ordersStatistics(begin, end);
+        return Result.success(orderReportVO);
     }
 }
