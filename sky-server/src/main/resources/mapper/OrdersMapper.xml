@@ -120,4 +120,20 @@
             </if>
         </where>
     </select>
+<!--注意这里的sum(od.number)一定要起别名 number 要不会封装不上-->
+    <select id="selectSalesTop10" resultType="com.sky.dto.GoodsSalesDTO">
+        select od.name,sum(od.number) number from orders o join order_detail od on o.id=od.order_id
+        <where>
+            o.status=5
+            <if test="dayBeginTime!=null">
+                and o.order_time &gt; #{dayBeginTime}
+            </if>
+            <if test="dayEndTime!=null">
+                and o.order_time &lt; #{dayEndTime}
+            </if>
+        </where>
+        group by od.name
+        order by number desc
+        limit 0,10
+    </select>
 </mapper>

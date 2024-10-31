@@ -1,10 +1,12 @@
 package com.sky.service.impl;
 
+import com.sky.dto.GoodsSalesDTO;
 import com.sky.entity.Orders;
 import com.sky.mapper.OrdersMapper;
 import com.sky.mapper.UserMapper;
 import com.sky.service.ReportService;
 import com.sky.vo.OrderReportVO;
+import com.sky.vo.SalesTop10ReportVO;
 import com.sky.vo.TurnoverReportVO;
 import com.sky.vo.UserReportVO;
 import org.apache.commons.lang3.StringUtils;
@@ -18,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author 王天一
@@ -157,12 +160,46 @@ public class ReportServiceImpl implements ReportService {
 
         //封装返回
         return OrderReportVO.builder()
-                .dateList(StringUtils.join(dateList,","))
-                .orderCountList(StringUtils.join(orderCountList,","))
-                .validOrderCountList(StringUtils.join(validOrderCountList,","))
+                .dateList(StringUtils.join(dateList, ","))
+                .orderCountList(StringUtils.join(orderCountList, ","))
+                .validOrderCountList(StringUtils.join(validOrderCountList, ","))
                 .totalOrderCount(totalOrderCount)
                 .validOrderCount(validOrderCount)
                 .orderCompletionRate(orderCompletionRate)
+                .build();
+    }
+
+    @Override
+    public SalesTop10ReportVO salesTop10(LocalDate begin, LocalDate end) {
+        //返回数据需要 菜品或套餐名称列表和对应销量列表  虽然名称和销量都在order_detail表中
+        //但注意隐含的条件 订单需要完成   所以要连接orders表将status=5作为查询条件之一
+        //其实还需要orders中的时间
+        //注意sql的写法  分组  然后降序  然后前十条limit
+        //隐式内连接
+        //注意这里的sum(od.number)一定要起别名 number 要不会封装不上
+        //select od.name,od.sum(number) **number** from orders o,order_detail od where o.id=od.order_id
+        //and o.status=5 and o.order_time> and o.order_time<
+        //group by od.name  order by  od.sum(number) desc limit 0,10
+        //显示内连接
+        //select od.name,od.sum(number) **number** from orders o join order_detail od on o.id=od.order_id
+        //where o.status=5 and o.order_time> and o.order_time<
+        //group by od.name  order by  od.sum(number) desc limit 0,10
+        LocalDateTime BeginTime = LocalDateTime.of(begin, LocalTime.MIN);
+        LocalDateTime EndTime = LocalDateTime.of(end, LocalTime.MAX);
+        //注意mapper中的返回类型，一个包含商品名称和销量的类的集合  GoodsSalesDTO
+        List<GoodsSalesDTO> goodsSalesDTOS = ordersMapper.selectSalesTop10(BeginTime, EndTime);
+        //将name和number从集合中的GoodsSalesDTO分别拿出来然后收集成新的集合
+        //两种写法
+        List<String> names = goodsSalesDTOS.stream().map(goodsSalesDTO -> {
+            return goodsSalesDTO.getName();
+        }).collect(Collectors.toList());
+        String nameList = StringUtils.join(names, ",");//转成字符串
+        List<Integer> numbers = goodsSalesDTOS.stream().map(GoodsSalesDTO::getNumber).collect(Collectors.toList());
+        String numberList = StringUtils.join(numbers, ",");
+
+        return SalesTop10ReportVO.builder()
+                .nameList(nameList)
+                .numberList(numberList)
                 .build();
     }
 }
