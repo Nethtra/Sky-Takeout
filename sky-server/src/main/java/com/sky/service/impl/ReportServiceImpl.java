@@ -61,7 +61,7 @@ public class ReportServiceImpl implements ReportService {
             map.put("dayBeginTime", dayBeginTime);
             map.put("dayEndTime", dayEndTime);
             map.put("status", Orders.COMPLETED);
-            Double dayTurnover = ordersMapper.selectDayTurnover(map);//我也不知道为什么要写动态sql
+            Double dayTurnover = ordersMapper.selectDayTurnoverByMap(map);//我也不知道为什么要写动态sql
             //当天没有营业额的话如果直接拿出来就是null  要换成0
             //而且注意使用三目运算符  比if简洁
             dayTurnover = dayTurnover == null ? 0.0 : dayTurnover;
@@ -96,12 +96,12 @@ public class ReportServiceImpl implements ReportService {
             Map map = new HashMap();
             map.put("dayEndTime", dayEndTime);
             //先查总用户数 因为只有一个参数  这样可以复用map
-            Long totalUser = userMapper.countUser(map);
+            Long totalUser = userMapper.countUserByMap(map);
             //查新增用户数
             Long newUser;
             if (i == 0) {
                 map.put("dayBeginTime", dayBeginTime);
-                newUser = userMapper.countUser(map);
+                newUser = userMapper.countUserByMap(map);
             } else {
                 //优化了一下逻辑
                 //后面天数的新增用户  可以用当天的总用户减去前一天的总用户 来减少查询次数
@@ -143,9 +143,9 @@ public class ReportServiceImpl implements ReportService {
             map.put("dayBeginTime", dayBeginTime);
             map.put("dayEndTime", dayEndTime);
             //所以用map的好处就是  参数个数不同的时候可以复用
-            Integer orderCount = ordersMapper.countOrders(map);
+            Integer orderCount = ordersMapper.countOrdersByMap(map);
             map.put("status", Orders.COMPLETED);
-            Integer validOrderCount = ordersMapper.countOrders(map);
+            Integer validOrderCount = ordersMapper.countOrdersByMap(map);
             orderCountList.add(orderCount);
             validOrderCountList.add(validOrderCount);
         }

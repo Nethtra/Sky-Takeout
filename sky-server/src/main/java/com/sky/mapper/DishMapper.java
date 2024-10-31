@@ -93,4 +93,13 @@ public interface DishMapper {
     @Select("select dish.* from dish left join setmeal_dish " +
             "on dish.id = setmeal_dish.dish_id where setmeal_dish.setmeal_id=#{setmealId}")
     List<Dish> selectBySetmealId(Long setmealId);
+
+    /**
+     * 根据状态统计菜品数量
+     *
+     * @param status
+     * @return
+     */
+    @Select("select count(*) from dish where status=#{status}")
+    Integer countByStatus(Integer status);
 }

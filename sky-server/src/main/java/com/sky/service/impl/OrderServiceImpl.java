@@ -23,7 +23,6 @@ import com.sky.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -302,9 +301,9 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public OrderStatisticsVO countStatistics() {
-        Integer toBeConfirmed = ordersMapper.selectStatisticCounts(Orders.TO_BE_CONFIRMED);
-        Integer confirmed = ordersMapper.selectStatisticCounts(Orders.CONFIRMED);
-        Integer deliveryInProgress = ordersMapper.selectStatisticCounts(Orders.DELIVERY_IN_PROGRESS);
+        Integer toBeConfirmed = ordersMapper.countOrdersByStatus(Orders.TO_BE_CONFIRMED);
+        Integer confirmed = ordersMapper.countOrdersByStatus(Orders.CONFIRMED);
+        Integer deliveryInProgress = ordersMapper.countOrdersByStatus(Orders.DELIVERY_IN_PROGRESS);
         OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
         orderStatisticsVO.setToBeConfirmed(toBeConfirmed);
         orderStatisticsVO.setConfirmed(confirmed);

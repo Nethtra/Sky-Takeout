@@ -44,5 +44,5 @@ public interface UserMapper {
      * @param map
      * @return
      */
-    Long countUser(Map map);
+    Long countUserByMap(Map map);
 }

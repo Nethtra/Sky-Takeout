@@ -91,7 +91,7 @@
         </where>
     </select>
     <!--if标签里的属性名要与map中的key对应上 就可以自动拿出来-->
-    <select id="selectDayTurnover" resultType="java.lang.Double">
+    <select id="selectDayTurnoverByMap" resultType="java.lang.Double">
         select sum(amount) from orders
         <where>
             <if test="dayBeginTime!=null">
@@ -106,7 +106,7 @@
         </where>
     </select>
 
-    <select id="countOrders" resultType="java.lang.Integer">
+    <select id="countOrdersByMap" resultType="java.lang.Integer">
         select count(*) from orders
         <where>
             <if test="dayBeginTime!=null">

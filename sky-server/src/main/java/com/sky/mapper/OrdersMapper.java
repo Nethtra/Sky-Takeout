@@ -4,7 +4,6 @@ import com.github.pagehelper.Page;
 import com.sky.dto.GoodsSalesDTO;
 import com.sky.dto.OrdersPageQueryDTO;
 import com.sky.entity.Orders;
-import com.sky.vo.OrderVO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
@@ -71,7 +70,7 @@ public interface OrdersMapper {
      * @return
      */
     @Select("select count(*) from orders where status=#{status}")
-    Integer selectStatisticCounts(Integer status);
+    Integer countOrdersByStatus(Integer status);
 
     /**
      * 根据状态和下单时间查询订单
@@ -89,7 +88,7 @@ public interface OrdersMapper {
      * @param map
      * @return
      */
-    Double selectDayTurnover(Map map);
+    Double selectDayTurnoverByMap(Map map);
 
     /**
      * 统计订单数
@@ -97,7 +96,7 @@ public interface OrdersMapper {
      * @param map
      * @return
      */
-    Integer countOrders(Map map);
+    Integer countOrdersByMap(Map map);
 
     /**
      * 统计指定时间段销量top10的商品

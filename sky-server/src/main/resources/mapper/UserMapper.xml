@@ -9,7 +9,7 @@
         values (#{name}, #{phone}, #{sex}, #{openid}, #{idNumber}, #{avatar}, #{createTime})
 
     </insert>
-    <select id="countUser" resultType="java.lang.Long">
+    <select id="countUserByMap" resultType="java.lang.Long">
         select count(*) from user
         <where>
             <if test="dayBeginTime!=null">
