@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.servlet.http.HttpServletResponse;
 import java.time.LocalDate;
 
 /**
@@ -96,5 +97,18 @@ public class ReportController {
         log.info("统计{}到{}的销量排名", begin, end);
         SalesTop10ReportVO salesTop10ReportVO = reportService.salesTop10(begin, end);
         return Result.success(salesTop10ReportVO);
+    }
+
+    /**
+     * 42 导出业务数据到excel
+     *
+     * @param httpServletResponse
+     */
+    @ApiOperation("导出业务数据到excel")
+    @GetMapping("/export")
+    //需要一个参数是因为最终需要一个输出流来在浏览器中下载 而HttpServletResponse中会提供输出流
+    //而Tomcat收到一个前端发的XMLHttpRequest后，会创建一个HttpServletRequest和一个HttpServletResponse
+    public void export(HttpServletResponse httpServletResponse) {
+        reportService.exportBusinessData(httpServletResponse);
     }
 }
