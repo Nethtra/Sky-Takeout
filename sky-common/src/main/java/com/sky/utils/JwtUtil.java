@@ -30,7 +30,7 @@ public class JwtUtil {
         JwtBuilder builder = Jwts.builder()
                 // 如果有私有声明，一定要先设置这个自己创建的私有的声明，这个是给builder的claim赋值，一旦写在标准的声明赋值之后，就是覆盖了那些标准的声明的
                 .setClaims(claims)
-                // 设置签名使用的签名算法和签名使用的秘钥
+                // 设置签名使用的签名算法和签名使用的秘钥，将签名密钥转换为字节数组，并使用 UTF-8 编码
                 .signWith(signatureAlgorithm, secretKey.getBytes(StandardCharsets.UTF_8))
                 // 设置过期时间
                 .setExpiration(exp);

@@ -53,8 +53,8 @@ public class EmployeeController {
         Map<String, Object> claims = new HashMap<>();
         claims.put(JwtClaimsConstant.EMP_ID, employee.getId());
         String token = JwtUtil.createJWT(
-                jwtProperties.getAdminSecretKey(),
-                jwtProperties.getAdminTtl(),
+                jwtProperties.getAdminSecretKey(),//密钥
+                jwtProperties.getAdminTtl(),//过期时间
                 claims);
 
         EmployeeLoginVO employeeLoginVO = EmployeeLoginVO.builder()
@@ -68,11 +68,11 @@ public class EmployeeController {
     }
 
     /**
-     * 退出
+     * 退出登录
      *
      * @return
      */
-    @ApiOperation(value = "员工退出")
+    @ApiOperation(value = "退出登录")
     @PostMapping("/logout")
     public Result<String> logout() {
         return Result.success();
@@ -80,7 +80,6 @@ public class EmployeeController {
 
     /**
      * 1新增员工
-     * <p>
      * 解决的问题：sql异常的捕获，操作人id的获取
      *
      * @param employeeDTO
@@ -105,7 +104,7 @@ public class EmployeeController {
     @GetMapping("/page")
     public Result<PageResult> pageQuery(EmployeePageQueryDTO employeePageQueryDTO) {
         //也是用DTO来封装请求参数
-        log.info("分页查询参数：{}", employeePageQueryDTO);
+        log.info("分页查询员工，参数：{}", employeePageQueryDTO);
         PageResult pageResult = employeeService.pageQuery(employeePageQueryDTO);
         return Result.success(pageResult);
     }
@@ -120,7 +119,7 @@ public class EmployeeController {
     @ApiOperation("启用禁用员工账号")
     @PostMapping("/status/{status}")//两种参数 路径参数和query参数
     public Result startOrStop(@PathVariable Integer status, Long id) {
-        log.info("id{}的账号状态更改为：{}", id, status);
+        log.info("id为{}的账号状态更改为：{}", id, status);
         employeeService.startOrStop(status, id);
         return Result.success();
     }

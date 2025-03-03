@@ -28,7 +28,7 @@ import java.util.List;
 @Slf4j
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
-    @Autowired
+    @Autowired//注入拦截器对象注册
     private JwtTokenAdminInterceptor jwtTokenAdminInterceptor;
     @Autowired
     private JwtTokenUserInterceptor jwtTokenUserInterceptor;
@@ -42,13 +42,29 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         log.info("开始注册自定义拦截器...");
         //注册管理端的拦截器
         registry.addInterceptor(jwtTokenAdminInterceptor)
-                .addPathPatterns("/admin/**")
-                .excludePathPatterns("/admin/employee/login");
+                .addPathPatterns("/admin/**")//拦截的资源
+                .excludePathPatterns("/admin/employee/login");//排除的资源
         //注册用户端的拦截器
         registry.addInterceptor(jwtTokenUserInterceptor)
                 .addPathPatterns("/user/**")
                 .excludePathPatterns("/user/user/login")
                 .excludePathPatterns("/user/shop/status");
+    }
+
+    /**
+     * 2.1扩展消息转换器 直接重写父类的方法
+     * 自定义消息转换器，正确格式化日期显示
+     *
+     * @param converters
+     */
+    @Override
+    protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
+        //创建消息转换器对象
+        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        //为消息转换器设置对象转换器 将java序列化为json数据
+        converter.setObjectMapper(new JacksonObjectMapper());//
+        //将自己设置的消息转换器加入容器  0表示优先级顺序
+        converters.add(0, converter);
     }
 
     /**
@@ -100,18 +116,5 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/");
     }
 
-    /**
-     * 2.1扩展消息转换器 直接重写父类的方法
-     *
-     * @param converters
-     */
-    @Override
-    protected void extendMessageConverters(List<HttpMessageConverter<?>> converters) {
-        //创建消息转换器对象
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        //为消息转换器设置对象转换器 将java序列化为json数据
-        converter.setObjectMapper(new JacksonObjectMapper());
-        //将自己设置的消息转换器加入容器  0表示优先级顺序
-        converters.add(0, converter);
-    }
+
 }
