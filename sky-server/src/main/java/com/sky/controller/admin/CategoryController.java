@@ -16,10 +16,10 @@ import java.util.List;
 /**
  * 分类管理
  */
+@Slf4j
 @RestController("adminCategoryController")
 @RequestMapping("/admin/category")
 @Api(tags = "分类相关接口")
-@Slf4j
 public class CategoryController {
 
     @Autowired
@@ -46,7 +46,7 @@ public class CategoryController {
     @GetMapping("/page")
     @ApiOperation("分类分页查询")
     public Result<PageResult> page(CategoryPageQueryDTO categoryPageQueryDTO){
-        log.info("分页查询：{}", categoryPageQueryDTO);
+        log.info("分类分页查询：{}", categoryPageQueryDTO);
         PageResult pageResult = categoryService.pageQuery(categoryPageQueryDTO);
         return Result.success(pageResult);
     }
@@ -59,7 +59,7 @@ public class CategoryController {
     @DeleteMapping
     @ApiOperation("删除分类")
     public Result<String> deleteById(Long id){
-        log.info("删除分类：{}", id);
+        log.info("删除分类id：{}", id);
         categoryService.deleteById(id);
         return Result.success();
     }

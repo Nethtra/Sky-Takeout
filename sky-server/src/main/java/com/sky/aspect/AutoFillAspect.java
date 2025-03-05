@@ -24,7 +24,8 @@ import java.time.LocalDateTime;
 @Component
 @Slf4j
 public class AutoFillAspect {
-    //定义切入点表达式    前置：已经自定义注解AutoFill   自定义枚举OperationType   开发完成后不要忘了在Mapper中写@AutoFill 还要把之前写的补充属性代码删了
+    //定义切入点表达式    前置：已经自定义注解AutoFill   自定义枚举OperationType
+    //开发完成后不要忘了在Mapper中写@AutoFill 还要把之前写的补充属性代码删了
     //两种方式同时使用来匹配  如果只使用@annotation会扫描所有方法，性能下降，使用execution来限制范围
     //注意匹配的是Mapper中的接口
     @Pointcut("execution(* com.sky.mapper.*.*(..)) && @annotation(com.sky.annotation.AutoFill)")
@@ -35,8 +36,10 @@ public class AutoFillAspect {
     @Before("autoFillPointCut()")
     public void autoFill(JoinPoint joinPoint) {
         log.info("开始进行公共字段自动填充");
-        //思路：先获取到原始方法的操作类型 insert还是update  insert需要改四个字段  update需要改两个字段
-        //再获取到原始方法的参数  用参数的反射来修改字段
+        //思路：1获取到原始方法@AutoFill上的操作类型 insert需要改四个字段  update需要改两个字段
+        //2再获取到原始方法的参数
+        //3用参数的反射得到set方法来为公共字段赋值
+        //赋值后等着原始方法执行的时候一起插进去
 
 
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();//获取方法签名对象   向下转型
@@ -52,7 +55,7 @@ public class AutoFillAspect {
         LocalDateTime now = LocalDateTime.now();//准备数据
         Long id = BaseContext.getCurrentId();
         if (operationType == OperationType.INSERT) {
-            //用反射来修改字段
+            //用反射得到set方法来赋值字段
             //因为entity是Object类型，没有getset方法，必须通过反射获得方法 还有弹幕说拿出来的entity不是new出来的对象，没法直接set 我觉得都有道理
             try {
                 Method setCreateTime = entity.getClass().getDeclaredMethod(AutoFillConstant.SET_CREATE_TIME, LocalDateTime.class);

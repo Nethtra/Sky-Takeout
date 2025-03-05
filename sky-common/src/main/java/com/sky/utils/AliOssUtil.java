@@ -27,10 +27,6 @@ public class AliOssUtil {
     //注入配置属性类
     @Autowired
     private AliOssProperties aliOssProperties;
-//    private String endpoint;
-//    //    private String accessKeyId;
-//    //    private String accessKeySecret;
-//    private String bucketName;
 
     /**
      * 文件上传

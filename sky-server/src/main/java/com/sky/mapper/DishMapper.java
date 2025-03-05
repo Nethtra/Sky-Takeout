@@ -85,7 +85,7 @@ public interface DishMapper {
     List<Dish> selectByCategoryId(Dish dish);
 
     /**
-     * 根据setmeal_id查询菜品
+     * 根据setmeal_id查询该套餐下的所有菜品
      *
      * @param setmealId
      * @return

@@ -21,9 +21,9 @@ import java.util.List;
  * @author 王天一
  * @version 1.0
  */
+@Slf4j
 @RestController("adminSetmealController")
 @Api("套餐管理相关接口")
-@Slf4j
 @RequestMapping("/admin/setmeal")
 public class SetmealController {
     @Autowired
@@ -68,7 +68,7 @@ public class SetmealController {
     @DeleteMapping
     @CacheEvict(cacheNames = "setmealCache",allEntries = true)//缓存
     public Result delete(@RequestParam List<Long> ids) {
-        log.info("批量删除套餐：{}", ids);
+        log.info("批量删除以下套餐：{}", ids);
         setmealService.deleteBatch(ids);
         return Result.success();
     }

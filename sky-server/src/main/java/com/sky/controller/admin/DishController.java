@@ -34,7 +34,7 @@ public class DishController {
     private RedisTemplate redisTemplate;
 
     /**
-     * 6新增菜品   包含查询分类 文件上传 新增菜品三个子接口
+     * 6新增菜品   包含根据类型查询分类 文件上传 新增菜品三个子接口
      *
      * @return
      */
@@ -72,7 +72,7 @@ public class DishController {
     @DeleteMapping
     //注意接口文档 前端传递的参数ids是String类型 使用@RequestParam标识List 可以让spring自动接收为集合
     public Result delete(@RequestParam List<Long> ids) {
-        log.info("批量删除菜品：{}", ids);
+        log.info("批量删除以下菜品：{}", ids);
         dishService.deleteBatch(ids);
         //批量删除涉及多个类 因为缓存是按菜品分类分的  所以不好精准清  直接删除所有
         /*Set keys = redisTemplate.keys("dish_*");//匹配所有key
@@ -94,7 +94,7 @@ public class DishController {
         //理论上用DTO也行 但是为了规范使用VO   且categoryName实际上用不到 因为已经将categoryId传过去了
         //之前pageQuery菜品时使用categoryName是因为要列表展示出分类名  这里数据回显的话可以单独让前端调根据id查分类的接口
         //之前pageQuery菜品时没有用到flavors  这次要查flavors  应该用连接查询或者分开查都可以
-        //但是dish连flavor感觉可能出问题 可能封装不上 最好还是分开  然后在service里封装成VO
+        //因为DishVO中flavor是个集合，大概率dish连接flavor的话会封装不上，所以要分开查dish和flavor然后在service里封装成VO
         log.info("查询菜品：{}", id);
         DishVO dishVO = dishService.selectByIdWithFlavor(id);
         return Result.success(dishVO);
@@ -140,6 +140,7 @@ public class DishController {
     @ApiOperation("根据分类id查询菜品")
     @GetMapping("/list")
     public Result<List<Dish>> selectByCategoryId(Long categoryId) {
+        //不需要展示口味，用Dish即可
         log.info("根据分类id查询菜品  categoryId:{}", categoryId);
         //这里看答案最好是只显示出起售的
         List<Dish> dishes = dishService.selectByCategoryId(categoryId);

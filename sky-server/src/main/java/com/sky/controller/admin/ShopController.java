@@ -16,10 +16,10 @@ import org.springframework.web.bind.annotation.*;
  * @version 1.0
  */
 //由于管理端和用户端使用相同的类名   但是bean是不能重名的 会报错   所以需要手动指定bean的名字
-@RestController("adminShopController")
 @Slf4j
+@RestController("adminShopController")
 @RequestMapping("/admin/shop")
-@Api("店铺管理相关接口")
+@Api("管理端店铺管理相关接口")
 public class ShopController {
     @Autowired
     private RedisTemplate redisTemplate;
@@ -35,7 +35,7 @@ public class ShopController {
     @ApiOperation("设置店铺营业状态")
     @PutMapping("/{status}")
     public Result setStatus(@PathVariable Integer status) {
-        log.info("设置店铺营业状态为{}", status == 1 ? "营业中" : "打烊中");
+        log.warn("设置店铺营业状态为{}", status == 1 ? "营业中" : "已打烊");
         redisTemplate.opsForValue().set(KEY, status);//使用redis存储营业状态
         return Result.success();
     }
@@ -49,7 +49,7 @@ public class ShopController {
     @GetMapping("/status")
     public Result<Integer> getStatus() {
         Integer shopStatus = (Integer) redisTemplate.opsForValue().get(KEY);
-        log.info("店铺营业状态为{}", shopStatus == 1 ? "营业中" : "打烊中");
+        log.info("当前店铺营业状态为{}", shopStatus == 1 ? "营业中" : "已打烊");
         return Result.success(shopStatus);
     }
 }

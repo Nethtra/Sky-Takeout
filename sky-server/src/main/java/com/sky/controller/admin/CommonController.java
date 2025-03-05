@@ -41,10 +41,8 @@ public class CommonController {
         try {
             String url = aliOssUtil.upload(file);
             return Result.success(url);
-        } catch (ClientException e) {
-            log.info("文件上传失败：{}", e);
-        } catch (IOException e) {
-            log.info("文件上传失败：{}", e);
+        } catch (ClientException | IOException e) {
+            log.error("文件上传失败：{}", e);
         }
         return Result.error(MessageConstant.UPLOAD_FAILED);
     }

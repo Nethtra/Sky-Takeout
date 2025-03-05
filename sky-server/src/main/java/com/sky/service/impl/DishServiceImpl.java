@@ -47,7 +47,8 @@ public class DishServiceImpl implements DishService {
         Dish dish = new Dish();
         BeanUtils.copyProperties(dishDTO, dish);
         dishMapper.insert(dish);
-        //插入完成后dishId已经返回   所以要先插Dish
+        //用useGeneratedKeys="true" keyProperty="id"拿到DishId   所以要先插Dish
+
         //向Flavor表
         List<DishFlavor> flavors = dishDTO.getFlavors();//先拿出DTO里的口味
         if (flavors != null && flavors.size() > 0) {
@@ -89,12 +90,13 @@ public class DishServiceImpl implements DishService {
         }
 
         //2判断是否被套餐关联
-        //思路是根据dishId去查setmealid 如果有的关联的话就不给删
+        //思路是根据dishId去查setmealId 如果有的关联的话就不给删
         //这里和上面不一样直接查ids了 我觉得是因为dish的selectById是能复用的方法 而这个setmeal_dish表一般不会查 所以写个直接一点的方法
         List<Long> setMealIds = setMealDishMapper.selectSetMealIdsByDishIds(ids);
         if (setMealIds != null && setMealIds.size() > 0) {
             throw new DeletionNotAllowedException(MessageConstant.DISH_BE_RELATED_BY_SETMEAL);
         }
+
         //3删除dish
         //这样会有性能问题 会执行多次sql导致性能下降
 /*        for (Long id :ids) {
@@ -132,11 +134,12 @@ public class DishServiceImpl implements DishService {
         //对于flavor表，不好直接修改 因为一个菜品有很多口味
         //所以可以先删除 再重新添加  达到修改的效果
         dishFlavorMapper.deleteByDishId(dishDTO.getId());//删除
-        //因为前端也没有传Flavor的dishid 所以还要自己赋  只不过这次dishDTO已经包含了dishId
+        //因为前端也没有传Flavor的dishid 所以还要自己赋
+        //只不过这次dishDTO中已经包含了dishId
         List<DishFlavor> flavors = dishDTO.getFlavors();
         if (flavors != null && flavors.size() > 0) {
             flavors.forEach(dishFlavor -> {
-                dishFlavor.setDishId(dishDTO.getId());
+                dishFlavor.setDishId(dishDTO.getId());//给每一个口味赋值dishId
             });
             dishFlavorMapper.insertBatch(flavors);//重新添加 注意这句要放到if里，要不没有口味的话再添加会报错
         }

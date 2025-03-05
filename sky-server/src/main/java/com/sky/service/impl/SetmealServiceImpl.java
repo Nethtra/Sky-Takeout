@@ -65,7 +65,7 @@ public class SetmealServiceImpl implements SetmealService {
     }
 
     @Override
-    @Transactional
+    @Transactional//开启事务
     public void deleteBatch(List<Long> ids) {
         //判断套餐是否起售
         ids.forEach(id -> {
@@ -79,11 +79,11 @@ public class SetmealServiceImpl implements SetmealService {
 
     @Override
     public void startOrStop(Integer status, Long id) {
-        //起售时先判断套餐里是否有还在停售状态的dish 有就不能起售
-        //要根据setmeal_id查询到dish的status  可以关联起dish和setmeal_dish来查 因为分开查就要先用setmeal_id查setmeal_dish 查出dish_id 再用dish_id查dish的status
+        //起售时先判断套餐里是否有还在停售状态的菜品，有就不能起售
+        //要根据setmeal_id查询到dish的status  可以关联起dish和setmeal_dish来查
+        //因为分开查就要先用setmeal_id查setmeal_dish查出dish_id 再用dish_id查dish的status
         //且可以直接查出个Dish集合 然后遍历集合来判断dish的status
-        //理解联合查询  想用套餐id查寻菜品  但是需要先后查两张表  因为菜品中没有直接的套餐id字段
-        //所以可以将两张表用on菜品id关联起来成一张表  然后使用where setmeal_id查
+        //理解联合查询
         if (status == StatusConstant.ENABLE) {//如果要起售
             List<Dish> dishes = dishMapper.selectBySetmealId(id);//将查出的dish封装成集合
             if (dishes != null && dishes.size() > 0) {
@@ -121,6 +121,7 @@ public class SetmealServiceImpl implements SetmealService {
         Setmeal setmeal = new Setmeal();
         BeanUtils.copyProperties(setmealDTO, setmeal);
         setmealMapper.update(setmeal);
+
         //setmeal_dish
         //先删除再重新添加
         setMealDishMapper.deleteBySetmealId(setmealDTO.getId());//删除
