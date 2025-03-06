@@ -77,6 +77,7 @@ public class DishController {
         //批量删除涉及多个类 因为缓存是按菜品分类分的  所以不好精准清  直接删除所有
         /*Set keys = redisTemplate.keys("dish_*");//匹配所有key
         redisTemplate.delete(keys);//删除所有*/
+        //抽取一个公共方法
         cleanCache("dish_*");
         return Result.success();
     }

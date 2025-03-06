@@ -40,7 +40,7 @@ public class DishController {
         List<DishVO> list = (List<DishVO>) redisTemplate.opsForValue().get(key);//注意类型，放进去的时候是List类型，拿出来就是List
         //2有就直接返回缓存数据
         if (list != null && list.size() > 0){
-            log.info("redis中存在缓存！");
+            log.info("redis命中菜品缓存");
             return Result.success(list);
         }
 

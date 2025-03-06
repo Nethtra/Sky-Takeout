@@ -24,8 +24,8 @@ import java.util.Map;
  * @author 王天一
  * @version 1.0
  */
-@RestController
 @Slf4j
+@RestController
 @RequestMapping("/user/user")//第一个user是用户端  第二个user代表用户模块
 @Api("微信小程序用户相关接口")
 public class UserController {
@@ -43,7 +43,7 @@ public class UserController {
     @ApiOperation("用户微信登陆")
     @PostMapping("/login")
     public Result<UserLoginVO> longin(@RequestBody UserLoginDTO userLoginDTO) {//虽然前端只有code  但也用DTO
-        log.info("用户微信登陆 授权码{}", userLoginDTO.getCode());
+        log.info("用户请求微信登陆，授权码code{}", userLoginDTO.getCode());
         //先登陆
         User user = userService.wxLogin(userLoginDTO);//Service中返回类型定义为User 因为只会携带id和openid 用其他的不合适 还有jwt生成要在controller中做
         //登陆成功后下发构造jwt令牌  所以这么看login和构造jwt令牌确实不能全放在service里
@@ -51,6 +51,7 @@ public class UserController {
         Map<String, Object> claims = new HashMap<String, Object>();
         claims.put(JwtClaimsConstant.USER_ID, user.getId());
         String token = JwtUtil.createJWT(jwtProperties.getUserSecretKey(), jwtProperties.getUserTtl(), claims);
+        //封装成VO返回
         UserLoginVO userLoginVO = UserLoginVO.builder()
                 .id(user.getId())
                 .openid(user.getOpenid())

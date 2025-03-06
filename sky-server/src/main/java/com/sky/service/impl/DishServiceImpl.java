@@ -170,6 +170,7 @@ public class DishServiceImpl implements DishService {
         //查出菜品的集合  每一个菜品又有多个口味
         //同样是分两次查询  只不过这次是DishVO的集合
         List<Dish> dishes = dishMapper.selectByCategoryId(dish);//查出的是Dish集合
+        //一个dish又有多个口味
         //要转成VO类型的List返回
         List<DishVO> dishVOList = new ArrayList<>();
         for (Dish aDish : dishes) {

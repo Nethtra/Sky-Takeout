@@ -42,16 +42,17 @@ public class UserServiceImpl implements UserService {
         String reponse = HttpClientUtil.doGet(WX_URL, map);//向微信的接口发起请求
         //返回的数据是json格式的字符串
         JSONObject jsonObject = JSON.parseObject(reponse);//fastjson包
-        String openId = jsonObject.getString("openid");//获取openid*/
+        String openId = jsonObject.getString("openid");//获取openid
+        */
 
         //将上面的方法抽取成公共方法  因为很固定
-        String openId = getOpenId(userLoginDTO);
+        String openId = getOpenId(userLoginDTO);//得到openId
         //2如果没有openid就抛异常
         if (openId == null)
             throw new LoginFailedException(MessageConstant.LOGIN_FAILED);
         //3如果有openid 判断是否为新用户
         User user = userMapper.selectByOpenId(openId);
-        //4是新用户就插入数据（自动注册）
+        //4是新用户就插入数据（自动注册） 如果不是新用户就直接return
         if (user == null) {
             user = User.builder()
                     .openid(openId)
@@ -79,7 +80,7 @@ public class UserServiceImpl implements UserService {
         map.put("secret", weChatProperties.getSecret());
         map.put("js_code", userLoginDTO.getCode());
         map.put("grant_type", "authorization_code");
-        String reponse = HttpClientUtil.doGet(WX_URL, map);//向微信的接口发起请求
+        String reponse = HttpClientUtil.doGet(WX_URL, map);//调用自定义的工具类，向微信的接口发起请求
         //返回的数据是json格式的字符串
         JSONObject jsonObject = JSON.parseObject(reponse);//fastjson包
         String openId = jsonObject.getString("openid");//获取openid

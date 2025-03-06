@@ -41,13 +41,13 @@ public class HttpClientUtil {
         CloseableHttpResponse response = null;
 
         try{
-            URIBuilder builder = new URIBuilder(url);
+            URIBuilder builder = new URIBuilder(url);//构建带参数的url
             if(paramMap != null){
                 for (String key : paramMap.keySet()) {
                     builder.addParameter(key,paramMap.get(key));
                 }
             }
-            URI uri = builder.build();
+            URI uri = builder.build();//生成最终的URI对象
 
             //创建GET请求
             HttpGet httpGet = new HttpGet(uri);
@@ -57,6 +57,7 @@ public class HttpClientUtil {
 
             //判断响应状态
             if(response.getStatusLine().getStatusCode() == 200){
+                //将响应实体转换为字符串，使用 UTF-8 编码
                 result = EntityUtils.toString(response.getEntity(),"UTF-8");
             }
         }catch (Exception e){
