@@ -192,7 +192,7 @@ public class WeChatPayUtil {
             signature.update(message);
             String packageSign = Base64.getEncoder().encodeToString(signature.sign());
 
-            //构造数据给微信小程序，用于调起微信支付
+            //构造数据给微信小程序前端，用于调起微信支付
             JSONObject jo = new JSONObject();
             jo.put("timeStamp", timeStamp);
             jo.put("nonceStr", nonceStr);

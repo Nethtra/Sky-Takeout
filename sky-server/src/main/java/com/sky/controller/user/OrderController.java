@@ -20,9 +20,9 @@ import org.springframework.web.bind.annotation.*;
  * @author 王天一
  * @version 1.0
  */
+@Slf4j
 @RequestMapping("/user/order")
 @RestController("userOrderController")
-@Slf4j
 @Api("用户端订单接口")
 public class OrderController {
     @Autowired
@@ -44,7 +44,7 @@ public class OrderController {
     }
 
     /**
-     * 订单支付   用户点击支付按钮（第一次）
+     * 订单支付   用户点击”去支付“按钮
      *
      * @param ordersPaymentDTO
      * @return

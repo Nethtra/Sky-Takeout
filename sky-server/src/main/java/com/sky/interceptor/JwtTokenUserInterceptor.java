@@ -50,7 +50,7 @@ public class JwtTokenUserInterceptor implements HandlerInterceptor {
             log.info("jwt校验:{}", token);
             Claims claims = JwtUtil.parseJWT(jwtProperties.getUserSecretKey(), token);
             Long userId = Long.valueOf(claims.get(JwtClaimsConstant.USER_ID).toString());
-            log.info("当前登录用户id：{}", userId);
+            log.warn("小程序当前登录用户id：{}", userId);
             //拦截时   在令牌校验的时候解析出了登陆人的id  考虑如何传到service层
             System.out.println("当前线程id:" + Thread.currentThread().getId());
             BaseContext.setCurrentId(userId);//将登陆用户id存入LocalThread

@@ -64,13 +64,13 @@ public class OrderServiceImpl implements OrderService {
         if (address == null)
             throw new AddressBookBusinessException(MessageConstant.ADDRESS_BOOK_IS_NULL);
 
-
         Long userId = BaseContext.getCurrentId();//注意根据mapper中方法的要求来
         ShoppingCart shoppingCart = new ShoppingCart();
         shoppingCart.setUserId(userId);
         List<ShoppingCart> shoppingCartList = shoppingCartMapper.select(shoppingCart);
         if (shoppingCartList == null || shoppingCartList.size() == 0)
             throw new ShoppingCartBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
+
         //2向orders表中插入一条数据
         //先设置好所有的属性   仔细对比DTO中没有传过来的  然后设置
         Orders orders = new Orders();
@@ -94,10 +94,10 @@ public class OrderServiceImpl implements OrderService {
         for (ShoppingCart cart : shoppingCartList) {
             OrderDetail orderDetail = new OrderDetail();
             BeanUtils.copyProperties(cart, orderDetail);
-            orderDetail.setOrderId(orders.getId());//设置关联的订单id
+            orderDetail.setOrderId(orders.getId());//设置order_detail关联的订单id
             orderDetailList.add(orderDetail);//添加进集合
         }
-        //批量插入order_detail表
+        //批量插入到order_detail表
         orderDetailMapper.insertBatch(orderDetailList);
 
         //4然后清空用户购物车的数据
@@ -125,6 +125,8 @@ public class OrderServiceImpl implements OrderService {
     //现在直接修改微信前端的代码  输入密码后直接重定向到支付成功页面
     //后端这里注释掉调用微信支付的接口 用到退款的地方也别用了  直接返回空的JSONobject  错了 不能是空的 要随便加一个prepay_id骗前端
     //然后因为还没调/paySuccess  就直接在payment里调一下
+    //前端点击去支付  请求后端/payment   后端这里注释掉调用微信支付的接口  返回一个假的OrderPaymentVO 并调用下面的paySuccess直接模拟微信回调 更新数据
+    //前端那里改代码，点击确认支付直接重定向到成功页面
     public OrderPaymentVO payment(OrdersPaymentDTO ordersPaymentDTO) throws Exception {
         // 当前登录用户id
         Long userId = BaseContext.getCurrentId();
@@ -138,19 +140,20 @@ public class OrderServiceImpl implements OrderService {
                 user.getOpenid() //微信用户的openid
         );*/
         JSONObject jsonObject = new JSONObject();//1
-        jsonObject.put("prepay_id", "111");//1
+        jsonObject.put("prepay_id", "111");//1   填一个假的prepay_id
+
         if (jsonObject.getString("code") != null && jsonObject.getString("code").equals("ORDERPAID")) {
             throw new OrderBusinessException("该订单已支付");
         }
 
         OrderPaymentVO vo = jsonObject.toJavaObject(OrderPaymentVO.class);
         vo.setPackageStr(jsonObject.getString("package"));
-        paySuccess(ordersPaymentDTO.getOrderNumber());//1
+        paySuccess(ordersPaymentDTO.getOrderNumber());//1  调paySuccess模拟微信回调我们后端来更新订单数据
         return vo;
     }
 
     /**
-     * 支付成功，修改订单状态
+     * 支付成功，修改订单状态    微信回调此方法  其实应该回调的是PayNotifyController中的那个方法
      *
      * @param outTradeNo
      */
@@ -222,7 +225,8 @@ public class OrderServiceImpl implements OrderService {
     public void cancelOrder(Long id) throws Exception {
         //分析业务规则
         //取消时先检查当前的订单状态
-        //1待付款 2待接单 3已接单 4派送中 5已完成 6已取消 7退款
+        //1待付款 2待接单 3已接单 4派送中 5已完成 6已取消
+        //注意Orders里有一个status 还有一个payStatus
 //        待支付和待接单状态下，用户可直接取消订单
 //        如果在待接单状态下取消订单，需要给用户退款
 //        商家已接单和配送中状态下，用户取消订单需电话沟通商家
@@ -239,11 +243,12 @@ public class OrderServiceImpl implements OrderService {
 //                    order.getNumber(), //商户退款单号
 //                    new BigDecimal(0.01),//退款金额，单位 元
 //                    new BigDecimal(0.01));//原订单金额
-            //支付状态修改为 退款
-            log.info("退款");
+            //payStatus状态修改为 已退款
+            log.info("取消订单，退款");
             order.setPayStatus(Orders.REFUND);
         }
-        order.setStatus(6);//最后设置状态为已取消
+        //如果是1的话就直接走这里  就是少一步退款
+        order.setStatus(Orders.CANCELLED);//最后设置状态为已取消
         ordersMapper.update(order);
     }
 
