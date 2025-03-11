@@ -12,13 +12,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * controller用于响应http请求 那就新建一个类用于响应websocket请求
  * WebSocket服务
  */
 @Component
-@ServerEndpoint("/ws/{sid}")
+@ServerEndpoint("/ws/{sid}")//约定的请求路径
 public class WebSocketServer {
 
-    //存放会话对象
+    //存放会话对象   session就是会话对象
     private static Map<String, Session> sessionMap = new HashMap();
 
     /**
@@ -26,7 +27,7 @@ public class WebSocketServer {
      */
     @OnOpen
     public void onOpen(Session session, @PathParam("sid") String sid) {
-        System.out.println("客户端：" + sid + "建立连接");
+        System.out.println("websocket客户端：" + sid + "建立连接");
         sessionMap.put(sid, session);
     }
 
@@ -37,7 +38,7 @@ public class WebSocketServer {
      */
     @OnMessage
     public void onMessage(String message, @PathParam("sid") String sid) {
-        System.out.println("收到来自客户端：" + sid + "的信息:" + message);
+        System.out.println("websocket收到来自客户端：" + sid + "的信息:" + message);
     }
 
     /**
@@ -47,7 +48,7 @@ public class WebSocketServer {
      */
     @OnClose
     public void onClose(@PathParam("sid") String sid) {
-        System.out.println("连接断开:" + sid);
+        System.out.println("websocket连接断开:" + sid);
         sessionMap.remove(sid);
     }
 
@@ -57,7 +58,7 @@ public class WebSocketServer {
      * @param message
      */
     public void sendToAllClient(String message) {
-        Collection<Session> sessions = sessionMap.values();
+        Collection<Session> sessions = sessionMap.values();//所有客户端
         for (Session session : sessions) {
             try {
                 //服务器向客户端发送消息

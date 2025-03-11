@@ -26,10 +26,10 @@ import java.time.LocalDate;
  * @author 王天一
  * @version 1.0
  */
+@Slf4j
 @RestController
 @Api("数据统计相关接口")
 @RequestMapping("/admin/report")
-@Slf4j
 public class ReportController {
     @Autowired
     private ReportService reportService;

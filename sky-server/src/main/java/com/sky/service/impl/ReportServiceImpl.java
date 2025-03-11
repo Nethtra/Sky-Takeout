@@ -43,7 +43,7 @@ public class ReportServiceImpl implements ReportService {
     @Override
     public TurnoverReportVO turnoverStatistics(LocalDate begin, LocalDate end) {
         //要构造两部分
-        //1dateList
+        //1dateList   思路是先搞个这些日期的集合，然后转成String
         //构造一个集合将日期按顺序add进去
         List<LocalDate> dateList = new ArrayList<>();
         while (!begin.equals(end)) {
@@ -54,6 +54,7 @@ public class ReportServiceImpl implements ReportService {
         //转成字符串  注意别导错包  是lang3这个包
         //接口格式要求 中间,分隔
         String join = StringUtils.join(dateList, ",");
+
 
         //2turnoverList
         //考虑如何查询每天的营业额select sum(amount) from orders where status=5 and order_time between dayBeginTime and dayEndTime

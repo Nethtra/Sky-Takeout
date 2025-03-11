@@ -37,8 +37,9 @@ public class OrderTask {
             for (Orders order : ordersList) {
                 order.setStatus(Orders.CANCELLED);
                 order.setCancelTime(LocalDateTime.now());
-                order.setCancelReason("超时未付款，已自动取消订单");
+                order.setCancelReason("超时未付款，已自动取消");
                 ordersMapper.update(order);
+                log.warn("订单号{}超时未付款，已自动取消",order.getNumber());
             }
         }
     }

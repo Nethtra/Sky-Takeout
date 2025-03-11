@@ -326,24 +326,27 @@ public class OrderServiceImpl implements OrderService {
         ordersMapper.update(orders);
     }
 
+    @Transactional
     @Override
     public void rejection(OrdersRejectionDTO ordersRejectionDTO) throws Exception {
+        //只有订单状态是待接单时才能拒单
+        Orders orders = ordersMapper.selectById(ordersRejectionDTO.getId());
+        if (!orders.getStatus().equals(Orders.TO_BE_CONFIRMED))
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
         //修改订单状态为已取消，然后填写拒单原因
-        Orders orders = Orders.builder()
-                .id(ordersRejectionDTO.getId())
-                .rejectionReason(ordersRejectionDTO.getRejectionReason())
-                .status(Orders.CANCELLED)
-                .cancelTime(LocalDateTime.now())//时间别忘写
-                .build();
+        orders.setCancelReason(ordersRejectionDTO.getRejectionReason());
+        orders.setCancelTime(LocalDateTime.now());
+        orders.setStatus(Orders.CANCELLED);
         ordersMapper.update(orders);
         //然后退款
         orders = ordersMapper.selectById(ordersRejectionDTO.getId());
 //        weChatPayUtil.refund(orders.getNumber(), orders.getNumber(), new BigDecimal(0.01), new BigDecimal(0.01));
-        log.info("退款");
+        log.info("商家拒单，退款");
         orders.setPayStatus(Orders.REFUND);//更新支付状态
         ordersMapper.update(orders);
     }
 
+    @Transactional
     @Override
     public void merchantCancelOrder(OrdersCancelDTO ordersCancelDTO) {
         //感觉和拒单基本一样
@@ -357,7 +360,7 @@ public class OrderServiceImpl implements OrderService {
         ordersMapper.update(order);
 
         if (order.getPayStatus().equals(Orders.PAID)) {
-            log.info("退款");
+            log.info("商家取消订单，退款");
             order.setPayStatus(Orders.REFUND);
             ordersMapper.update(order);
         }

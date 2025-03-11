@@ -124,7 +124,7 @@ public class OrderController {
     @GetMapping("/reminder/{id}")
     public Result reminder(@PathVariable Long id){
         log.info("用户催{}单",id);
-        orderService.reminder(id);
+        orderService.reminder(id);//注意service是不用返回值的，因为其实是通过websocket返回，跟controller没关系
         return Result.success();
     }
 }
